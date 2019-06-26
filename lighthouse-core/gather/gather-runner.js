@@ -168,6 +168,37 @@ class GatherRunner {
   }
 
   /**
+   * Returns an error if we ended up on the `chrome-error` page and all other requests failed.
+   * @param {Array<LH.Artifacts.NetworkRequest>} networkRecords
+   * @return {LH.LighthouseError|undefined}
+   */
+  static getInterstitialError(networkRecords) {
+    const interstitialRequest = networkRecords
+      .find(record => record.documentURL.startsWith('chrome-error://'));
+    // If the page didn't end up on a chrome interstitial, there's no error here.
+    if (!interstitialRequest) return undefined;
+
+    const pageNetworkRecords = networkRecords
+      .filter(record => !URL.NON_NETWORK_PROTOCOLS.includes(record.protocol) &&
+        !record.documentURL.startsWith('chrome-error://'));
+    // If none of the requests failed, there's no error here.
+    // We don't expect that this case could ever occur, but better safe than sorry.
+    // Note also that in cases of redirects, the initial requests could succeed and we still end up
+    // on the error interstitial page.
+    if (!pageNetworkRecords.some(record => record.failed)) return undefined;
+
+    // If a request failed with the `net::ERR_CERT_*` collection of errors, then it's a security issue.
+    const insecureRequest = pageNetworkRecords.find(record =>
+      record.failed && record.localizedFailDescription.startsWith('net::ERR_CERT'));
+    if (insecureRequest) {
+      return new LHError(LHError.errors.INSECURE_DOCUMENT_REQUEST, {securityMessages:
+        insecureRequest.localizedFailDescription});
+    }
+
+    return new LHError(LHError.errors.CHROME_INTERSTITIAL_ERROR);
+  }
+
+  /**
    * Returns an error if the page load should be considered failed, e.g. from a
    * main document request failure, a security issue, etc.
    * @param {LH.Gatherer.PassContext} passContext
@@ -177,9 +208,13 @@ class GatherRunner {
    */
   static getPageLoadError(passContext, loadData, navigationError) {
     const networkError = GatherRunner.getNetworkError(passContext.url, loadData.networkRecords);
+    const interstitialError = GatherRunner.getInterstitialError(loadData.networkRecords);
 
-    //  If the driver was offline, the load will fail without offline support. Ignore this case.
+    // If the driver was offline, the load will fail without offline support. Ignore this case.
     if (!passContext.driver.online) return;
+
+    // We want to special-case the interstitial beyond FAILED_DOCUMENT_REQUEST. See https://github.com/GoogleChrome/lighthouse/pull/8865#issuecomment-497507618
+    if (interstitialError) return interstitialError;
 
     // Network errors are usually the most specific and provide the best reason for why the page failed to load.
     // Prefer networkError over navigationError.
@@ -374,28 +409,6 @@ class GatherRunner {
   }
 
   /**
-   * Generate a set of artfiacts for the given pass as if all the gatherers
-   * failed with the given pageLoadError.
-   * @param {LH.Gatherer.PassContext} passContext
-   * @param {LHError} pageLoadError
-   * @return {{pageLoadError: LHError, artifacts: Partial<LH.GathererArtifacts>}}
-   */
-  static generatePageLoadErrorArtifacts(passContext, pageLoadError) {
-    /** @type {Partial<Record<keyof LH.GathererArtifacts, LHError>>} */
-    const errorArtifacts = {};
-    for (const gathererDefn of passContext.passConfig.gatherers) {
-      const gatherer = gathererDefn.instance;
-      errorArtifacts[gatherer.name] = pageLoadError;
-    }
-
-    return {
-      pageLoadError,
-      // @ts-ignore - TODO(bckenny): figure out how to usefully type errored artifacts.
-      artifacts: errorArtifacts,
-    };
-  }
-
-  /**
    * Takes the results of each gatherer phase for each gatherer and uses the
    * last produced value (that's not undefined) as the artifact for that
    * gatherer. If an error was rejected from a gatherer phase,
@@ -460,6 +473,7 @@ class GatherRunner {
       settings: options.settings,
       URL: {requestedUrl: options.requestedUrl, finalUrl: options.requestedUrl},
       Timing: [],
+      PageLoadError: null,
     };
   }
 
@@ -559,7 +573,10 @@ class GatherRunner {
         Object.assign(artifacts, passResults.artifacts);
 
         // If we encountered a pageLoadError, don't try to keep loading the page in future passes.
-        if (passResults.pageLoadError) break;
+        if (passResults.pageLoadError) {
+          baseArtifacts.PageLoadError = passResults.pageLoadError;
+          break;
+        }
 
         if (isFirstPass) {
           await GatherRunner.populateBaseArtifacts(passContext);
@@ -571,8 +588,9 @@ class GatherRunner {
       GatherRunner.finalizeBaseArtifacts(baseArtifacts);
       return /** @type {LH.Artifacts} */ ({...baseArtifacts, ...artifacts}); // Cast to drop Partial<>.
     } catch (err) {
-      // cleanup on error
+      // Clean up on error. Don't await so that the root error, not a disposal error, is shown.
       GatherRunner.disposeDriver(driver, options);
+
       throw err;
     }
   }
@@ -585,6 +603,18 @@ class GatherRunner {
   static isPerfPass(passContext) {
     const {settings, passConfig} = passContext;
     return !settings.disableStorageReset && passConfig.recordTrace && passConfig.useThrottling;
+  }
+
+  /**
+   * Save the devtoolsLog and trace (if applicable) to baseArtifacts.
+   * @param {LH.Gatherer.PassContext} passContext
+   * @param {LH.Gatherer.LoadData} loadData
+   * @param {string} passName
+   */
+  static _addLoadDataToBaseArtifacts(passContext, loadData, passName) {
+    const baseArtifacts = passContext.baseArtifacts;
+    baseArtifacts.devtoolsLogs[passName] = loadData.devtoolsLog;
+    if (loadData.trace) baseArtifacts.traces[passName] = loadData.trace;
   }
 
   /**
@@ -613,20 +643,21 @@ class GatherRunner {
     // Disable throttling so the afterPass analysis isn't throttled
     await driver.setThrottling(passContext.settings, {useThrottling: false});
 
-    // Save devtoolsLog and trace.
-    const baseArtifacts = passContext.baseArtifacts;
-    baseArtifacts.devtoolsLogs[passConfig.passName] = loadData.devtoolsLog;
-    if (loadData.trace) baseArtifacts.traces[passConfig.passName] = loadData.trace;
-
-    // If there were any load errors, treat all gatherers as if they errored.
+    // In case of load error, save log and trace with an error prefix, return no artifacts for this pass.
     const pageLoadError = GatherRunner.getPageLoadError(passContext, loadData, possibleNavError);
     if (pageLoadError) {
       log.error('GatherRunner', pageLoadError.friendlyMessage, passContext.url);
       passContext.LighthouseRunWarnings.push(pageLoadError.friendlyMessage);
-      return GatherRunner.generatePageLoadErrorArtifacts(passContext, pageLoadError);
+      GatherRunner._addLoadDataToBaseArtifacts(passContext, loadData,
+          `pageLoadError-${passConfig.passName}`);
+
+      return {artifacts: {}, pageLoadError};
     }
 
-    // If no error, run `afterPass()` on gatherers and return collected artifacts.
+    // If no error, save devtoolsLog and trace.
+    GatherRunner._addLoadDataToBaseArtifacts(passContext, loadData, passConfig.passName);
+
+    // Run `afterPass()` on gatherers and return collected artifacts.
     await GatherRunner.afterPass(passContext, loadData, gathererResults);
     return GatherRunner.collectArtifacts(gathererResults);
   }

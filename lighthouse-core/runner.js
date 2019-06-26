@@ -237,6 +237,7 @@ class Runner {
         gatherMode: undefined,
         auditMode: undefined,
         output: undefined,
+        channel: undefined,
         budgets: undefined,
       };
       const normalizedGatherSettings = Object.assign({}, artifacts.settings, overrides);
@@ -352,12 +353,18 @@ class Runner {
   }
 
   /**
-   * Returns first runtimeError found in artifacts.
+   * Searches a pass's artifacts for any `lhrRuntimeError` error artifacts.
+   * Returns the first one found or `null` if none found.
    * @param {LH.Artifacts} artifacts
    * @return {LH.Result['runtimeError']|undefined}
    */
   static getArtifactRuntimeError(artifacts) {
-    for (const possibleErrorArtifact of Object.values(artifacts)) {
+    const possibleErrorArtifacts = [
+      artifacts.PageLoadError, // Preferentially use `PageLoadError`, if it exists.
+      ...Object.values(artifacts), // Otherwise check amongst all artifacts.
+    ];
+
+    for (const possibleErrorArtifact of possibleErrorArtifacts) {
       if (possibleErrorArtifact instanceof LHError && possibleErrorArtifact.lhrRuntimeError) {
         const errorMessage = possibleErrorArtifact.friendlyMessage || possibleErrorArtifact.message;
 

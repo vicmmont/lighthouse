@@ -94,6 +94,8 @@ const UIStrings = {
   seoCrawlingGroupTitle: 'Crawling and Indexing',
   /* Description of the navigation section within the Search Engine Optimization (SEO) category. Within this section are audits with descriptive titles that highlight ways to make a website accessible to search engine crawlers. */
   seoCrawlingGroupDescription: 'To appear in search results, crawlers need access to your app.',
+  /** Title of the Best Practices category of audits. This is displayed at the top of a list of audits focused on topics related to following web development best practices and accepted guidelines. Also used as a label of a score gauge; try to limit to 20 characters. */
+  bestPracticesCategoryTitle: 'Best Practices',
   /** Title of the Fast and Reliable section of the web app category. Within this section are audits that check if the web site loaded quickly and can reliably load even if the internet connection is very slow or goes offline. */
   pwaFastReliableGroupTitle: 'Fast and reliable',
   /** Title of the Installable section of the web app category. Within this section are audits that check if Chrome supports installing the web site as an app on their device. */
@@ -199,6 +201,7 @@ const defaultConfig = {
     'offline-start-url',
     'performance-budget',
     'resource-summary',
+    'third-party-summary',
     'manual/pwa-cross-browser',
     'manual/pwa-page-transitions',
     'manual/pwa-each-page-has-url',
@@ -391,6 +394,7 @@ const defaultConfig = {
         {id: 'font-display', weight: 0, group: 'diagnostics'},
         {id: 'performance-budget', weight: 0, group: 'budgets'},
         {id: 'resource-summary', weight: 0, group: 'diagnostics'},
+        {id: 'third-party-summary', weight: 0, group: 'diagnostics'},
         // Audits past this point don't belong to a group and will not be shown automatically
         {id: 'network-requests', weight: 0},
         {id: 'network-rtt', weight: 0},
@@ -461,7 +465,7 @@ const defaultConfig = {
       ],
     },
     'best-practices': {
-      title: 'Best Practices',
+      title: str_(UIStrings.bestPracticesCategoryTitle),
       auditRefs: [
         {id: 'appcache-manifest', weight: 1},
         {id: 'is-on-https', weight: 1},
