@@ -384,7 +384,7 @@ const seenStrings = new Map();
 let collisions = 0;
 
 /** @type {Array<string>} */
-let collisionStrings = [];
+const collisionStrings = [];
 
 /**
  * Collects all LHL messsages defined in UIString from Javascript files in dir,
