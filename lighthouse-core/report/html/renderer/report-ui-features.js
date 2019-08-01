@@ -224,21 +224,21 @@ class ReportUIFeatures {
     dropdown.addEventListener('click', this.onToolAction);
 
     // i18n the dropdown text
-    this._dom.find('#lh-dropdown_print_summary', dropdown).textContent =
+    this._dom.find('#lh-dropdown__print-summary', dropdown).textContent =
       Util.UIStrings.dropdownPrintSummary;
-    this._dom.find('#lh-dropdown_print_expanded', dropdown).textContent =
+    this._dom.find('#lh-dropdown__print-expanded', dropdown).textContent =
       Util.UIStrings.dropdownPrintExpanded;
-    this._dom.find('#lh-dropdown_json', dropdown).textContent =
+    this._dom.find('#lh-dropdown__json', dropdown).textContent =
       Util.UIStrings.dropdownCopyJSON;
-    this._dom.find('#lh-dropdown_save_html', dropdown).textContent =
+    this._dom.find('#lh-dropdown__save-html', dropdown).textContent =
       Util.UIStrings.dropdownSaveHTML;
-    this._dom.find('#lh-dropdown_save_json', dropdown).textContent =
+    this._dom.find('#lh-dropdown__save-json', dropdown).textContent =
       Util.UIStrings.dropdownSaveJSON;
-    this._dom.find('#lh-dropdown_open_viewer', dropdown).textContent =
+    this._dom.find('#lh-dropdown__open-viewer', dropdown).textContent =
       Util.UIStrings.dropdownViewer;
-    this._dom.find('#lh-dropdown_save_gist', dropdown).textContent =
+    this._dom.find('#lh-dropdown__save-gist', dropdown).textContent =
       Util.UIStrings.dropdownSaveGist;
-    this._dom.find('#lh-dropdown_dark_theme', dropdown).textContent =
+    this._dom.find('#lh-dropdown__dark-theme', dropdown).textContent =
       Util.UIStrings.dropdownDarkTheme;
   }
 
