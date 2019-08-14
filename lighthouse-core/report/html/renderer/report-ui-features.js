@@ -83,7 +83,7 @@ class ReportUIFeatures {
     // TODO(i18n): Modifying Util singleton is not the best way to i18n this.
     // Related TODO: https://github.com/GoogleChrome/lighthouse/pull/5713/files#r204948699
     // Update util UIStrings, just like in report-renderer, we need to do it again b/c they have been reset.
-    const originalUIStrings = JSON.parse(JSON.stringify(Util.UIStrings));
+    Util.cacheUIStrings();
     if (report.i18n && report.i18n.rendererFormattedStrings) {
       Util.updateAllUIStrings(report.i18n.rendererFormattedStrings);
     }
@@ -149,7 +149,7 @@ class ReportUIFeatures {
     }
 
     // Reset Util UIStrings.
-    Util.updateAllUIStrings(originalUIStrings);
+    Util.hydrateUIStringsFromCache();
   }
 
   /**

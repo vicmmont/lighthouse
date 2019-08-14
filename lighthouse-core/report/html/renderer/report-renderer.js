@@ -45,7 +45,7 @@ class ReportRenderer {
    */
   renderReport(result, container) {
     // Mutate the UIStrings if necessary (while saving originals)
-    const originalUIStrings = JSON.parse(JSON.stringify(Util.UIStrings));
+    Util.cacheUIStrings();
 
     this._dom.setLighthouseChannel(result.configSettings.channel || 'unknown');
 
@@ -55,7 +55,7 @@ class ReportRenderer {
     container.appendChild(this._renderReport(report));
 
     // put the UIStrings back into original state
-    Util.updateAllUIStrings(originalUIStrings);
+    Util.hydrateUIStringsFromCache();
 
     return container;
   }

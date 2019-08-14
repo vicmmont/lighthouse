@@ -608,6 +608,15 @@ class Util {
   static isPluginCategory(categoryId) {
     return categoryId.startsWith('lighthouse-plugin-');
   }
+
+  static cacheUIStrings() {
+    /** @type {LH.I18NRendererStrings} */
+    this.cachedStrings = JSON.parse(JSON.stringify(this.UIStrings));
+  }
+
+  static hydrateUIStringsFromCache() {
+    this.updateAllUIStrings(this.cacheUIStrings);
+  }
 }
 
 /**
