@@ -615,7 +615,7 @@ class Util {
   }
 
   static hydrateUIStringsFromCache() {
-    this.updateAllUIStrings(this.cacheUIStrings);
+    this.updateAllUIStrings(this.cachedStrings || {});
   }
 }
 
