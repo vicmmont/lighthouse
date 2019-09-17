@@ -4,13 +4,19 @@
 - `package.json` - declares the plugin's entry point (`plugin.js`)
 - `plugin.js` - instructs Lighthouse to run the plugin's own `preload-as.js` audit; describes the new category and its details for the report
 - `audits/preload-as.js` - the new audit to run in addition to Lighthouse's default audits
- 
+
 ## To run
 
-- Install as a (peer) dependency, parallel to `lighthouse`.
-- `npx lighthouse https://example.com --plugins=lighthouse-plugin-example --view`
+You can use this folder as your template. Download and extract this folder to an empty folder.
 
-The input to `--plugins` will be loaded from `node_modules/`.
+```sh
+curl -L https://github.com/GoogleChrome/lighthouse/archive/master.zip | tar -xzv
+mv lighthouse-master/docs/recipes/lighthouse-plugin-example/* ./
+rm -rf lighthouse-master
+
+yarn
+yarn lighthouse https://example.com --plugins=.
+```
 
 ## Result
 

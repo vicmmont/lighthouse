@@ -162,6 +162,9 @@ function assertValidGatherer(gathererInstance, gathererName) {
  * @param {string} pluginName
  */
 function assertValidPluginName(configJSON, pluginName) {
+  // For local plugin development
+  if (pluginName === '.') return;
+
   if (!pluginName.startsWith('lighthouse-plugin-')) {
     throw new Error(`plugin name '${pluginName}' does not start with 'lighthouse-plugin-'`);
   }
