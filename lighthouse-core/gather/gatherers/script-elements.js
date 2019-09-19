@@ -67,28 +67,31 @@ class ScriptElements extends Gatherer {
       // Only get the content of script requests
       .filter(record => record.resourceType === NetworkRequest.TYPES.Script);
 
-    for (const record of scriptRecords) {
-      try {
-        const content = await driver.getRequestContent(record.requestId);
-        if (!content) continue;
+    const scriptRecordContents = await Promise.all(scriptRecords.map(record => {
+      return driver.getRequestContent(record.requestId).catch(() => '');
+    }));
 
-        const matchedScriptElement = scripts.find(script => script.src === record.url);
-        if (matchedScriptElement) {
-          matchedScriptElement.requestId = record.requestId;
-          matchedScriptElement.content = content;
-        } else {
-          scripts.push({
-            devtoolsNodePath: '',
-            type: null,
-            src: record.url,
-            async: false,
-            defer: false,
-            source: 'network',
-            requestId: record.requestId,
-            content,
-          });
-        }
-      } catch (e) {}
+    for (let i = 0; i < scriptRecords.length; i++) {
+      const record = scriptRecords[i];
+      const content = scriptRecordContents[i];
+      if (!content) continue;
+
+      const matchedScriptElement = scripts.find(script => script.src === record.url);
+      if (matchedScriptElement) {
+        matchedScriptElement.requestId = record.requestId;
+        matchedScriptElement.content = content;
+      } else {
+        scripts.push({
+          devtoolsNodePath: '',
+          type: null,
+          src: record.url,
+          async: false,
+          defer: false,
+          source: 'network',
+          requestId: record.requestId,
+          content,
+        });
+      }
     }
 
     return scripts;
