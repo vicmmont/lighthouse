@@ -53,14 +53,18 @@ async function startWptTest(url) {
     url,
     // Keep the location constant. Use Chrome and 3G network conditions.
     // Using Beta because we need 78+ traces for LCP.
-    location: 'Dulles:Chrome Beta.3G',
+    location: 'Dulles:Nexus 5 - Chrome Beta.3G',
+    bwDown: '1600',
+    bwUp: '768',
+    latency: '300',
+    runs: '1',
     lighthouse: '1',
     // Make the trace file available over /getgzip.php.
     lighthouseTrace: '1',
     // Disable some things that WPT does, such as a "repeat view" analysis.
     type: 'lighthouse',
     mobile: '1',
-    // mobileDevice: '1',
+    mobileDevice: 'MotoG4',
   }).toString();
   const wptResponseJson = await fetchString(apiUrl.href);
   const wptResponse = JSON.parse(wptResponseJson);
