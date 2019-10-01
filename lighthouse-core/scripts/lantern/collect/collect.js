@@ -54,9 +54,6 @@ async function startWptTest(url) {
     // Keep the location constant. Use Chrome and 3G network conditions.
     // Using Beta because we need 78+ traces for LCP.
     location: 'Dulles:Nexus 5 - Chrome Beta.3G',
-    bwDown: '1600',
-    bwUp: '768',
-    latency: '300',
     runs: '1',
     lighthouse: '1',
     // Make the trace file available over /getgzip.php.
