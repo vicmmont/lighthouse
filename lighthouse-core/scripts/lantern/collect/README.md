@@ -4,8 +4,8 @@ Collects many traces using a local machine and mobile devices via WPT.
 
 There are 9 runs for each URL in the big zip. The golden zip contains just the median runs (by performance score), along with a dump of the `metrics` collected by Lighthouse.
 
-[Download all](https://drive.google.com/file/d/1vowczOByYoLFPcCON1wOUMVyD6IX_K0P/view?usp=sharing) traces (3.2GB zipped, 19GB unzipped).
-[Download golden](https://drive.google.com/file/d/1WZ0hxoMfpKNQ6zwDLiirBspWwHlSHLNv/view?usp=sharing) traces (363MB zipped, 2.1GB unzipped).
+[Download all](https://drive.google.com/file/d/1FvuDK0IMp5eLO_QdZljtPgy50qmKL15T/view?usp=sharing) traces (3.2GB zipped, 19GB unzipped).
+[Download golden](https://drive.google.com/file/d/1Ncr2uEqBUJxylrXNlaGnkSaejpt81dpa/view?usp=sharing) traces (363MB zipped, 2.1GB unzipped).
 
 ## Get a WPT key
 
