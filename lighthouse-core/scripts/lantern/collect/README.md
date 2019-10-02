@@ -9,7 +9,11 @@ There are 9 runs for each URL in the big zip. The golden zip contains just the m
 
 ## Get a WPT key
 
+This is how you get a regular key:
+
 http://www.webpagetest.org/getkey.php -> "Login with Google" -> fill form. Key will be emailed to you.
+
+But you'll really need a privileged key to run the collection in a reasonable amount of time.
 
 ## Lighthouse Version
 
