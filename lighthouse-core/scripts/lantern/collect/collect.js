@@ -60,8 +60,6 @@ async function startWptTest(url) {
     lighthouseTrace: '1',
     // Disable some things that WPT does, such as a "repeat view" analysis.
     type: 'lighthouse',
-    mobile: '1',
-    mobileDevice: 'MotoG4',
   }).toString();
   const wptResponseJson = await fetchString(apiUrl.href);
   const wptResponse = JSON.parse(wptResponseJson);
