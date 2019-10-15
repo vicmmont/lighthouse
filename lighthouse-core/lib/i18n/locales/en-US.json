@@ -459,7 +459,7 @@
     "message": "{itemCount, plural,\n    =1 {1 chain found}\n    other {# chains found}\n    }"
   },
   "lighthouse-core/audits/critical-request-chains.js | title": {
-    "message": "Minimize Critical Requests Depth"
+    "message": "Avoid chaining critical requests"
   },
   "lighthouse-core/audits/deprecations.js | columnDeprecate": {
     "message": "Deprecation / Warning"
@@ -522,7 +522,7 @@
     "message": "Value"
   },
   "lighthouse-core/audits/dobetterweb/dom-size.js | description": {
-    "message": "Browser engineers recommend pages contain fewer than ~1,500 DOM elements. The sweet spot is a tree depth < 32 elements and fewer than 60 children/parent element. A large DOM can increase memory usage, cause longer [style calculations](https://developers.google.com/web/fundamentals/performance/rendering/reduce-the-scope-and-complexity-of-style-calculations), and produce costly [layout reflows](https://developers.google.com/speed/articles/reflow). [Learn more](https://web.dev/dom-size)."
+    "message": "A large DOM will increase memory usage, cause longer [style calculations](https://developers.google.com/web/fundamentals/performance/rendering/reduce-the-scope-and-complexity-of-style-calculations), and produce costly [layout reflows](https://developers.google.com/speed/articles/reflow). [Learn more](https://web.dev/dom-size)."
   },
   "lighthouse-core/audits/dobetterweb/dom-size.js | displayValue": {
     "message": "{itemCount, plural,\n    =1 {1 element}\n    other {# elements}\n    }"
@@ -1089,7 +1089,7 @@
     "message": "Reduce the impact of third-party code"
   },
   "lighthouse-core/audits/third-party-summary.js | title": {
-    "message": "Third-Party usage"
+    "message": "Minimize third-party usage"
   },
   "lighthouse-core/audits/time-to-first-byte.js | description": {
     "message": "Time To First Byte identifies the time at which your server sends a response. [Learn more](https://web.dev/time-to-first-byte)."
