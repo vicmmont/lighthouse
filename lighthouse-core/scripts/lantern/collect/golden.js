@@ -116,7 +116,12 @@ async function main() {
     goldenSites.push({
       url,
       wpt3g: {
-        ...wptMetrics,
+        firstContentfulPaint: wptMetrics.firstContentfulPaint,
+        firstMeaningfulPaint: wptMetrics.firstMeaningfulPaint,
+        timeToFirstInteractive: wptMetrics.firstCPUIdle,
+        timeToConsistentlyInteractive: wptMetrics.interactive,
+        speedIndex: wptMetrics.speedIndex,
+        largestContentfulPaint: wptMetrics.largestContentfulPaint,
       },
       unthrottled: {
         tracePath: medianUnthrottled.trace,
@@ -124,15 +129,14 @@ async function main() {
       },
     });
   }
-
   /** @type {Golden} */
   const golden = {sites: goldenSites};
 
   rimraf.sync(common.goldenFolder);
   fs.mkdirSync(common.goldenFolder);
-  saveGoldenData('golden.json', JSON.stringify(golden, null, 2));
+  saveGoldenData('site-index-plus-golden-expectations.json', JSON.stringify(golden, null, 2));
   for (const result of goldenSites) {
-    log.progress('making golden.json');
+    log.progress('making site-index-plus-golden-expectations.json');
     copyToGolden(result.unthrottled.devtoolsLogPath);
     copyToGolden(result.unthrottled.tracePath);
   }

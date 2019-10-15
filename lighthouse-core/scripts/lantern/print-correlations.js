@@ -42,6 +42,7 @@
  * @property {number} [timeToFirstInteractive]
  * @property {number} [timeToConsistentlyInteractive]
  * @property {number} [speedIndex]
+ * @property {number} [largestContentfulPaint]
  */
 
 /**
