@@ -5,9 +5,9 @@
  */
 'use strict';
 
-/** @typedef {import('./common.js').Golden} Golden */
 /** @typedef {import('./common.js').Result} Result */
 /** @typedef {import('./common.js').Summary} Summary */
+/** @typedef {import('../run-on-all-assets.js').Golden} Golden */
 
 const fs = require('fs');
 const rimraf = require('rimraf');
@@ -25,32 +25,51 @@ function getMetrics(lhr) {
 }
 
 /**
- * Returns run w/ the median TTI.
- * @param {Result[]} results
+ * @template T
+ * @param {T[]} values
+ * @param {(sortValue: T) => number} mapper
  */
-function getMedianResult(results) {
-  const resultsWithValue = [];
-  for (const result of results) {
-    const lhr = loadLhr(result.lhr);
-    const metrics = getMetrics(lhr);
-    if (!metrics || !metrics.interactive) {
-      log.log(`missing metrics: ${result.lhr}`);
-      continue;
-    }
-    resultsWithValue.push({value: metrics.interactive, result});
-  }
-  resultsWithValue.sort((a, b) => a.value - b.value);
+function getMedianBy(values, mapper) {
+  const resultsWithValue = values.map(value => {
+    return {sortValue: mapper(value), value};
+  });
+
+  resultsWithValue.sort((a, b) => a.sortValue - b.sortValue);
 
   if (resultsWithValue.length % 2 === 1) {
-    return resultsWithValue[Math.floor(resultsWithValue.length / 2)].result;
+    return resultsWithValue[Math.floor(resultsWithValue.length / 2)].value;
   }
 
-  // Select the value that is closest to the average.
-  const sum = resultsWithValue.reduce((acc, cur) => acc + cur.value, 0);
-  const average = sum / resultsWithValue.length;
+  // Select the value that is closest to the mean.
+  const sum = resultsWithValue.reduce((acc, cur) => acc + cur.sortValue, 0);
+  const mean = sum / resultsWithValue.length;
   const a = resultsWithValue[Math.floor(resultsWithValue.length / 2)];
   const b = resultsWithValue[Math.floor(resultsWithValue.length / 2) + 1];
-  return Math.abs(a.value - average) < Math.abs(b.value - average) ? a.result : b.result;
+  const comparison = Math.abs(a.sortValue - mean) < Math.abs(b.sortValue - mean);
+  return comparison ? a.value : b.value;
+}
+
+/**
+ * Returns run w/ the median TTI.
+ * @param {string} url
+ * @param {Result[]} results
+ */
+function getMedianResult(url, results) {
+  // Runs can be missing metrics.
+  const resultsWithMetrics = results.map(result => {
+    const metrics = getMetrics(loadLhr(result.lhr));
+    return {result, metrics};
+  }).filter(({metrics}) => {
+    return metrics && metrics.interactive;
+  });
+
+  const n = resultsWithMetrics.length;
+  if (n <= 4) {
+    log.log(`Not enough data for ${url} (only found ${n}). Consider re-running.`);
+    return null;
+  }
+
+  return getMedianBy(resultsWithMetrics, ({metrics}) => Number(metrics.interactive)).result;
 }
 
 /**
@@ -85,37 +104,37 @@ async function main() {
   /** @type {Summary[]} */
   const summary = common.loadSummary();
 
-  /** @type {Golden[]} */
-  const golden = summary.map(({url, wpt, unthrottled}, index) => {
-    log.progress(`finding median ${index + 1} / ${summary.length}`);
-    const medianWpt = getMedianResult(wpt);
-    const medianUnthrottled = getMedianResult(unthrottled);
-    return {
+  const goldenSites = [];
+  for (const [index, {url, wpt, unthrottled}] of Object.entries(summary)) {
+    log.progress(`finding median ${Number(index) + 1} / ${summary.length}`);
+    const medianWpt = getMedianResult(url, wpt);
+    const medianUnthrottled = getMedianResult(url, unthrottled);
+    if (!medianWpt || !medianUnthrottled) continue;
+    if (!medianUnthrottled.devtoolsLog) throw new Error(`missing devtoolsLog for ${url}`);
+
+    const wptMetrics = getMetrics(loadLhr(medianWpt.lhr));
+    goldenSites.push({
       url,
-      // Cache the metrics in the golden.json, so the trace files don't
-      // need to be processed during test-lantern.sh
-      wpt: {
-        ...medianWpt,
-        metrics: getMetrics(loadLhr(medianWpt.lhr)),
+      wpt3g: {
+        ...wptMetrics,
       },
       unthrottled: {
-        ...medianUnthrottled,
-        metrics: getMetrics(loadLhr(medianUnthrottled.lhr)),
+        tracePath: medianUnthrottled.trace,
+        devtoolsLogPath: medianUnthrottled.devtoolsLog,
       },
-    };
-  });
+    });
+  }
+
+  /** @type {Golden} */
+  const golden = {sites: goldenSites};
 
   rimraf.sync(common.goldenFolder);
   fs.mkdirSync(common.goldenFolder);
   saveGoldenData('golden.json', JSON.stringify(golden, null, 2));
-  for (const result of golden) {
+  for (const result of goldenSites) {
     log.progress('making golden.json');
-    // All the string values are paths to files that we want to copy.
-    const filenames = [...Object.values(result.wpt), ...Object.values(result.unthrottled)]
-      .filter(/** @param {*} val @return {val is string} */ val => typeof val === 'string');
-    for (const filename of filenames) {
-      if (filename) copyToGolden(filename);
-    }
+    copyToGolden(result.unthrottled.devtoolsLogPath);
+    copyToGolden(result.unthrottled.tracePath);
   }
 
   log.progress('archiving ...');

@@ -7,6 +7,8 @@ There are 9 runs for each URL in the big zip. The golden zip contains just the m
 [Download all](https://drive.google.com/file/d/1FvuDK0IMp5eLO_QdZljtPgy50qmKL15T/view?usp=sharing) traces (3.2GB zipped, 19GB unzipped).
 [Download golden](https://drive.google.com/file/d/1Ncr2uEqBUJxylrXNlaGnkSaejpt81dpa/view?usp=sharing) traces (363MB zipped, 2.1GB unzipped).
 
+Note: Only 45/80 of the URLs in `./urls.js` have been processed.
+
 ## Get a WPT key
 
 This is how you get a regular key:
@@ -32,7 +34,7 @@ Note: some good URLs will 4xx b/c the site blocks such usages of `curl`.
 ## Run
 
 ```sh
-DEBUG=1 WPT_KEY=... NUM_SAMPLES=9 node collect.js
+DEBUG=1 WPT_KEY=... NUM_SAMPLES=9 node --max-old-space-size=12288 collect.js
 ```
 
 Output will be in `dist/collect-lantern-traces`, and zipped at `dist/collect-lantern-traces.zip`.

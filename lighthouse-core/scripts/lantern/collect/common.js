@@ -8,7 +8,6 @@
 /** @typedef {{devtoolsLog?: string, lhr: string, trace: string}} Result */
 /** @typedef {Result & {metrics: import('../../../audits/metrics.js').UberMetricsItem}} ResultWithMetrics */
 /** @typedef {{url: string, wpt: Result[], unthrottled: Result[]}} Summary */
-/** @typedef {{url: string, wpt: ResultWithMetrics, unthrottled: ResultWithMetrics}} Golden */
 
 const fs = require('fs');
 const readline = require('readline');
