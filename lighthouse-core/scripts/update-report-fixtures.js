@@ -22,9 +22,9 @@ const budgetedConfig = require('../test/results/sample-config.js');
 async function update(artifactName) {
   // get an available port
   server.listen(0, 'localhost');
-  const port = await new Promise(res => server.on('listening', () => {
+  const port = await new Promise(res => server.getRawServer().on('listening', () => {
     // Not a pipe or a domain socket, so will not be a string. See https://nodejs.org/api/net.html#net_server_address.
-    const address = /** @type {AddressInfo} */ (server.address());
+    const address = /** @type {AddressInfo} */ (server.getRawServer().address());
     res(address.port);
   }));
 
