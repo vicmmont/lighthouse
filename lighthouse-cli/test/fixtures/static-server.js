@@ -24,6 +24,7 @@ const lhRootDirPath = path.join(__dirname, '../../../');
 class Server {
   constructor() {
     this._server = http.createServer(this._requestHandler.bind(this));
+    /** @type {(data: string) => string} */
     this._dataTransformer = null;
   }
 
@@ -46,6 +47,9 @@ class Server {
     this._server.close(cb);
   }
 
+  /**
+   * @param {(data: string) => string} fn
+   */
   setDataTransformer(fn) {
     this._dataTransformer = fn;
   }
