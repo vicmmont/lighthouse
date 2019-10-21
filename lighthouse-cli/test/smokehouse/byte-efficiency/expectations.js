@@ -133,12 +133,12 @@ const expectations = [
               },
               {
                 url: 'http://localhost:10200/byte-efficiency/script.js?gzip=1',
-                transferSize: 1158,
+                transferSize: '1100 +/- 100',
                 resourceSize: 52997,
               },
               {
                 url: 'http://localhost:10200/byte-efficiency/script.js',
-                transferSize: 53203,
+                transferSize: '53200 +/- 1000',
                 resourceSize: 52997,
               },
               {
