@@ -15,8 +15,12 @@ const expectations = [
       Stacks: [{
         id: 'jquery',
       }, {
+        id: 'jquery',
+        name: 'jQuery (Fast path)',
+      }, {
         id: 'wordpress',
       }],
+      MainDocumentContent: /^<!doctype html>.*DoBetterWeb Mega Tester.*aggressive-promise-polyfill.*<\/html>\n$/s,
       LinkElements: [
         {
           rel: 'stylesheet',
@@ -355,6 +359,9 @@ const expectations = [
           details: {
             items: [{
               name: 'jQuery',
+            },
+            {
+              name: 'jQuery (Fast path)',
             },
             {
               name: 'WordPress',

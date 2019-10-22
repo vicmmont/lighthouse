@@ -5,7 +5,7 @@
     "hostUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3358.0 Safari/537.36",
     "benchmarkIndex": 1000
   },
-  "lighthouseVersion": "5.5.0",
+  "lighthouseVersion": "5.6.0",
   "fetchTime": "2018-03-13T00:55:45.840Z",
   "requestedUrl": "http://localhost:10200/dobetterweb/dbw_tester.html",
   "finalUrl": "http://localhost:10200/dobetterweb/dbw_tester.html",
@@ -194,7 +194,7 @@
     "total-blocking-time": {
       "id": "total-blocking-time",
       "title": "Total Blocking Time",
-      "description": "Sum of all time periods between FCP and Time to Interactive, when task length exceeded 50ms, expressed in milliseconds.",
+      "description": "Sum of all time periods between FCP and Time to Interactive, when task length exceeded 50ms, expressed in milliseconds. [Learn more](https://web.dev/lighthouse-total-blocking-time).",
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 116.79800000000023,
@@ -1242,7 +1242,7 @@
       "description": "Collects all available metrics.",
       "score": null,
       "scoreDisplayMode": "informative",
-      "numericValue": 4927.278,
+      "numericValue": 4927,
       "details": {
         "type": "debugdata",
         "items": [
@@ -2879,6 +2879,10 @@
           {
             "name": "jQuery",
             "version": "2.1.1",
+            "npm": "jquery"
+          },
+          {
+            "name": "jQuery (Fast path)",
             "npm": "jquery"
           },
           {
@@ -4541,6 +4545,12 @@
       {
         "startTime": 0,
         "name": "lh:audit:metrics",
+        "duration": 100,
+        "entryType": "measure"
+      },
+      {
+        "startTime": 0,
+        "name": "lh:computed:TimingSummary",
         "duration": 100,
         "entryType": "measure"
       },
