@@ -84,6 +84,7 @@ async function runUnthrottledLocally(url) {
     url,
     '--output=json',
     `-AG=${artifactsFolder}`,
+    process.env.NO_OOPIFS === '1' ? '--chrome-flags=--disable-features=site-per-process' : '',
   ], {
     // Default (1024 * 1024) is too small.
     maxBuffer: 10 * 1024 * 1024,
