@@ -28,6 +28,7 @@ const DEBUG = process.env.DEBUG;
  * @param {string} data
  */
 function saveData(filename, data) {
+  fs.mkdirSync(common.collectFolder, {recursive: true});
   fs.writeFileSync(`${common.collectFolder}/${filename}`, data);
   return filename;
 }
