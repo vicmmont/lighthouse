@@ -68,9 +68,26 @@ class ScriptElements extends Gatherer {
       // Only get the content of script requests
       .filter(record => record.resourceType === NetworkRequest.TYPES.Script);
 
-    const scriptRecordContents = await Promise.all(scriptRecords.map(record => {
-      return driver.getRequestContent(record.requestId).catch(() => '');
-    }));
+    // If mobile device, be sensitive of memory limitations and only request one
+    // request content at a time.
+    // TODO: replace with promise pool from smoke pr
+    // Whether Lighthouse was run on a mobile device (i.e. not on a desktop machine).
+    const hostUserAgent = passContext.baseArtifacts.HostUserAgent;
+    const IsMobileHost = hostUserAgent.includes('Android') || hostUserAgent.includes('Mobile');
+    const scriptRecordContents = [];
+    if (IsMobileHost) {
+      for (const record of scriptRecords) {
+        const content = await driver.getRequestContent(record.requestId).catch(() => '');
+        scriptRecordContents.push(content);
+      }
+    } else {
+      const scriptRecordContentPromises = scriptRecords.map(record => {
+        return driver.getRequestContent(record.requestId).catch(() => '');
+      });
+      for (const content of await Promise.all(scriptRecordContentPromises)) {
+        scriptRecordContents.push(content);
+      }
+    }
 
     for (let i = 0; i < scriptRecords.length; i++) {
       const record = scriptRecords[i];
