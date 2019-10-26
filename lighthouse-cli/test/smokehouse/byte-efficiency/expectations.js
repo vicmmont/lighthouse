@@ -6,9 +6,10 @@
 'use strict';
 
 /**
+ * @type {Array<Smokehouse.ExpectedRunnerResult>}
  * Expected Lighthouse audit values for byte efficiency tests
  */
-module.exports = [
+const expectations = [
   {
     artifacts: {
       ScriptElements: [
@@ -212,3 +213,5 @@ module.exports = [
     },
   },
 ];
+
+module.exports = expectations;
