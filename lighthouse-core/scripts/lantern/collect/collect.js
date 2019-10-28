@@ -54,7 +54,7 @@ async function startWptTest(url) {
     url,
     // Keep the location constant. Use Chrome and 3G network conditions.
     // Using Beta because we need 78+ traces for LCP.
-    location: 'Dulles_MotoG4:Motorola G (gen 4) - Chrome.3G',
+    location: 'Dulles_MotoG4:Motorola G (gen 4) - Chrome Beta.3G',
     runs: '1',
     lighthouse: '1',
     // Make the trace file available over /getgzip.php.
