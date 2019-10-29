@@ -83,6 +83,7 @@ async function runUnthrottledLocally(url) {
   const {stdout} = await execFileAsync('node', [
     `${LH_ROOT}/lighthouse-cli`,
     url,
+    '--throttling-method=provided',
     '--output=json',
     `-AG=${artifactsFolder}`,
     process.env.NO_OOPIFS === '1' ? '--chrome-flags=--disable-features=site-per-process' : '',
