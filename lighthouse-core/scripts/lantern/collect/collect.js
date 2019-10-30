@@ -186,9 +186,7 @@ async function main() {
     // Remove data if no longer in URLS.
     .filter(urlSet => TEST_URLS.includes(urlSet.url));
 
-  if (!fs.existsSync(common.collectFolder)) {
-    fs.mkdirSync(common.collectFolder);
-  }
+  fs.mkdirSync(common.collectFolder, {recursive: true});
 
   // Traces are collected for one URL at a time, in series, so all traces are from a small time
   // frame, reducing the chance of a site change affecting results.
