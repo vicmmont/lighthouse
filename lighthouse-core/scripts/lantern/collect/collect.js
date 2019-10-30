@@ -92,12 +92,13 @@ async function runUnthrottledLocally(url) {
     maxBuffer: 10 * 1024 * 1024,
   });
   // Make the JSON small.
-  const lhr = JSON.stringify(JSON.parse(stdout));
+  const lhr = JSON.parse(stdout);
+  assertLhr(lhr);
   const devtoolsLog = fs.readFileSync(`${artifactsFolder}/defaultPass.devtoolslog.json`, 'utf-8');
   const trace = fs.readFileSync(`${artifactsFolder}/defaultPass.trace.json`, 'utf-8');
   return {
     devtoolsLog,
-    lhr,
+    lhr: JSON.stringify(lhr),
     trace,
   };
 }
@@ -111,14 +112,15 @@ async function runForWpt(url) {
   if (DEBUG) log.log({testId, jsonUrl});
 
   // Poll for the results every x seconds, where x = position in queue.
-  let lhr = '';
+  let lhr;
   // eslint-disable-next-line no-constant-condition
   while (true) {
     const responseJson = await fetchString(jsonUrl);
     const response = JSON.parse(responseJson);
 
     if (response.statusCode === 200) {
-      lhr = JSON.stringify(response.data.lighthouse);
+      lhr = response.data.lighthouse;
+      assertLhr(lhr);
       break;
     }
 
@@ -143,7 +145,7 @@ async function runForWpt(url) {
   trace.traceEvents = trace.traceEvents.filter(e => Object.keys(e).length > 0);
 
   return {
-    lhr,
+    lhr: JSON.stringify(lhr),
     trace: JSON.stringify(trace),
   };
 }
@@ -160,6 +162,16 @@ async function repeatUntilPass(asyncFn) {
       log.log(err, 'error....');
     }
   }
+}
+
+/**
+ * @param {LH.Result=} lhr
+ */
+function assertLhr(lhr) {
+  if (!lhr) throw new Error('missing lhr');
+  const metrics = common.getMetrics(lhr);
+  if (metrics && metrics.interactive && metrics.firstMeaningfulPaint) return;
+  throw new Error('run failed to get metrics');
 }
 
 /** @type {typeof common.ProgressLogger['prototype']} */
@@ -252,6 +264,13 @@ async function main() {
     // We just collected NUM_SAMPLES * 2 traces, so let's save our progress.
     summary.push(urlResultSet);
     common.saveSummary(summary);
+  }
+
+  // Sanity check.
+  for (const result of summary) {
+    if (result.wpt.length !== SAMPLES || result.unthrottled.length !== SAMPLES) {
+      throw new Error(`unexpected number of results for ${result.url}`);
+    }
   }
 
   log.progress('archiving ...');

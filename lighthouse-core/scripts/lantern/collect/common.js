@@ -96,6 +96,16 @@ function saveSummary(summary) {
   fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2));
 }
 
+/**
+ * @param {LH.Result} lhr
+ * @return {LH.Artifacts.TimingSummary}
+ */
+function getMetrics(lhr) {
+  const metricsDetails = /** @type {LH.Audit.Details.DebugData=} */ (
+    lhr.audits['metrics'].details);
+  return metricsDetails && metricsDetails.items && metricsDetails.items[0];
+}
+
 module.exports = {
   ProgressLogger,
   collectFolder,
@@ -103,4 +113,5 @@ module.exports = {
   archive,
   loadSummary,
   saveSummary,
+  getMetrics,
 };

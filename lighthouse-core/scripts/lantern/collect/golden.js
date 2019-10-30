@@ -14,17 +14,6 @@ const rimraf = require('rimraf');
 const common = require('./common.js');
 
 /**
- * @param {LH.Result} lhr
- * @return {import('../../../audits/metrics.js').UberMetricsItem}
- */
-function getMetrics(lhr) {
-  const metricsDetails = /** @type {LH.Audit.Details.DebugData=} */ (
-    lhr.audits['metrics'].details);
-  /** @type {import('../../../audits/metrics.js').UberMetricsItem} */
-  return metricsDetails && metricsDetails.items && metricsDetails.items[0];
-}
-
-/**
  * @template T
  * @param {T[]} values
  * @param {(sortValue: T) => number} mapper
@@ -51,25 +40,16 @@ function getMedianBy(values, mapper) {
 
 /**
  * Returns run w/ the median TTI.
- * @param {string} url
  * @param {Result[]} results
  */
-function getMedianResult(url, results) {
-  // Runs can be missing metrics.
+function getMedianResult(results) {
   const resultsWithMetrics = results.map(result => {
-    const metrics = getMetrics(loadLhr(result.lhr));
+    const metrics = common.getMetrics(loadLhr(result.lhr));
     return {result, metrics};
-  }).filter(({metrics}) => {
-    return metrics && metrics.interactive;
   });
-
-  const n = resultsWithMetrics.length;
-  if (n <= 4) {
-    log.log(`Not enough data for ${url} (only found ${n}). Consider re-running.`);
-    return null;
-  }
-
-  return getMedianBy(resultsWithMetrics, ({metrics}) => Number(metrics.interactive)).result;
+  const median =
+    getMedianBy(resultsWithMetrics, ({metrics}) => Number(metrics.firstContentfulPaint));
+  return median.result;
 }
 
 /**
@@ -107,12 +87,12 @@ async function main() {
   const goldenSites = [];
   for (const [index, {url, wpt, unthrottled}] of Object.entries(summary)) {
     log.progress(`finding median ${Number(index) + 1} / ${summary.length}`);
-    const medianWpt = getMedianResult(url, wpt);
-    const medianUnthrottled = getMedianResult(url, unthrottled);
+    const medianWpt = getMedianResult(wpt);
+    const medianUnthrottled = getMedianResult(unthrottled);
     if (!medianWpt || !medianUnthrottled) continue;
     if (!medianUnthrottled.devtoolsLog) throw new Error(`missing devtoolsLog for ${url}`);
 
-    const wptMetrics = getMetrics(loadLhr(medianWpt.lhr));
+    const wptMetrics = common.getMetrics(loadLhr(medianWpt.lhr));
     goldenSites.push({
       url,
       wpt3g: {
