@@ -15,41 +15,31 @@ const common = require('./common.js');
 
 /**
  * @template T
+ * @param {number} percentile 0 - 1
  * @param {T[]} values
  * @param {(sortValue: T) => number} mapper
  */
-function getMedianBy(values, mapper) {
+function getPercentileBy(percentile, values, mapper) {
   const resultsWithValue = values.map(value => {
     return {sortValue: mapper(value), value};
   });
-
   resultsWithValue.sort((a, b) => a.sortValue - b.sortValue);
-
-  if (resultsWithValue.length % 2 === 1) {
-    return resultsWithValue[Math.floor(resultsWithValue.length / 2)].value;
-  }
-
-  // Select the value that is closest to the mean.
-  const sum = resultsWithValue.reduce((acc, cur) => acc + cur.sortValue, 0);
-  const mean = sum / resultsWithValue.length;
-  const a = resultsWithValue[Math.floor(resultsWithValue.length / 2)];
-  const b = resultsWithValue[Math.floor(resultsWithValue.length / 2) + 1];
-  const comparison = Math.abs(a.sortValue - mean) < Math.abs(b.sortValue - mean);
-  return comparison ? a.value : b.value;
+  const pos = Math.floor((values.length - 1) * percentile);
+  return resultsWithValue[pos].value;
 }
 
 /**
- * Returns run w/ the median TTI.
+ * Returns run w/ the %ile based on FCP.
+ * @param {number} percentile
  * @param {Result[]} results
  */
-function getMedianResult(results) {
+function getPercentileResult(percentile, results) {
   const resultsWithMetrics = results.map(result => {
     const metrics = common.getMetrics(loadLhr(result.lhr));
     return {result, metrics};
   });
-  const median =
-    getMedianBy(resultsWithMetrics, ({metrics}) => Number(metrics.firstContentfulPaint));
-  return median.result;
+  return getPercentileBy(
+    percentile, resultsWithMetrics, ({metrics}) => Number(metrics.firstContentfulPaint)).result;
 }
 
 /**
@@ -87,8 +77,12 @@ async function main() {
   const goldenSites = [];
   for (const [index, {url, wpt, unthrottled}] of Object.entries(summary)) {
     log.progress(`finding median ${Number(index) + 1} / ${summary.length}`);
-    const medianWpt = getMedianResult(wpt);
-    const medianUnthrottled = getMedianResult(unthrottled);
+    // Use the nearly-best-case run from WPT, to match the optimistic viewpoint of lantern, and
+    // avoid variability that is not addressable by Lighthouse. Don't use the best case because
+    // that increases liklihood of using a run that failed to load an important subresource.
+    const medianWpt = getPercentileResult(0.25, wpt);
+    // Use the median run for unthrottled.
+    const medianUnthrottled = getPercentileResult(0.5, unthrottled);
     if (!medianWpt || !medianUnthrottled) continue;
     if (!medianUnthrottled.devtoolsLog) throw new Error(`missing devtoolsLog for ${url}`);
 

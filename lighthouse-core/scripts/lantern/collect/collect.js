@@ -169,8 +169,9 @@ async function repeatUntilPass(asyncFn) {
  */
 function assertLhr(lhr) {
   if (!lhr) throw new Error('missing lhr');
+  if (lhr.runtimeError) throw new Error(`runtime error: ${lhr.runtimeError}`);
   const metrics = common.getMetrics(lhr);
-  if (metrics && metrics.interactive && metrics.firstMeaningfulPaint) return;
+  if (metrics && metrics.interactive && metrics.firstContentfulPaint) return;
   throw new Error('run failed to get metrics');
 }
 
