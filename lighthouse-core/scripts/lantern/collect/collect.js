@@ -232,14 +232,16 @@ async function main() {
       wptResultsPromises.push(resultPromise);
     }
 
+    // Wait for WPT to finish, because it can take quite awhile to start and we want
+    // to avoid seeing totally different content locally.
+    await Promise.all(wptResultsPromises);
+
     // Must run in series.
     for (let i = 0; i < SAMPLES; i++) {
       const resultPromise = repeatUntilPass(() => runUnthrottledLocally(url));
       unthrottledResults.push(await resultPromise);
       updateProgress();
     }
-
-    await Promise.all(wptResultsPromises);
 
     const urlResultSet = {
       url,
