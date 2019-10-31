@@ -136,7 +136,10 @@ async function runForWpt(url, startedCb) {
 
     if (response.statusCode >= 100 && response.statusCode < 200) {
       // If behindCount doesn't exist, the test is currently running.
-      const secondsToWait = 30 + 10 * (response.data.behindCount || 0);
+      // * Wait 30 seconds if the test is currently running.
+      // * Wait an additional 10 seconds for every test ahead of this one.
+      // * Don't wait for more than 10 minutes.
+      const secondsToWait = Math.min(30 + 10 * (response.data.behindCount || 0), 10 * 1000);
       if (DEBUG) log.log('poll wpt in', secondsToWait);
       if (!response.data.behindCount) triggerStarted();
       await new Promise((resolve) => setTimeout(resolve, secondsToWait * 1000));
