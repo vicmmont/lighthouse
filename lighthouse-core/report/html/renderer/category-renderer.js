@@ -335,13 +335,20 @@ class CategoryRenderer {
     // Cast `null` to 0
     const numericScore = Number(category.score);
     const gauge = this.dom.find('.lh-gauge', tmpl);
-    // 352 is ~= 2 * Math.PI * gauge radius (56)
-    // https://codepen.io/xgad/post/svg-radial-progress-meters
-    // score of 50: `stroke-dasharray: 176 352`;
     /** @type {?SVGCircleElement} */
     const gaugeArc = gauge.querySelector('.lh-gauge-arc');
+
     if (gaugeArc) {
-      gaugeArc.style.strokeDasharray = `${numericScore * 352} 352`;
+      const circumferencePx = 2 * Math.PI * Number(gaugeArc.getAttribute('r'));
+      // The rounded linecap of the stroke extends the arc past its start & end.
+      // First, we tweak the -90deg rotation to adjust
+      const strokeWidthPx = Number(gaugeArc.getAttribute('stroke-width'));
+      const rotationalAdjustmentPercent = 0.5 * strokeWidthPx / circumferencePx;
+      gaugeArc.style.transform = `rotate(${-90 + rotationalAdjustmentPercent * 360}deg)`;
+      // Then, we terminate the line a little early as well.
+      const arcLengthPx = numericScore * circumferencePx - strokeWidthPx;
+      // Credit to xgad for the technique: https://codepen.io/xgad/post/svg-radial-progress-meters
+      gaugeArc.style.strokeDasharray = `${Math.max(arcLengthPx, 0)} ${circumferencePx}`;
     }
 
     const scoreOutOf100 = Math.round(numericScore * 100);
