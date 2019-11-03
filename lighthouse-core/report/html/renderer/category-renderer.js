@@ -338,18 +338,7 @@ class CategoryRenderer {
     /** @type {?SVGCircleElement} */
     const gaugeArc = gauge.querySelector('.lh-gauge-arc');
 
-    if (gaugeArc) {
-      const circumferencePx = 2 * Math.PI * Number(gaugeArc.getAttribute('r'));
-      // The rounded linecap of the stroke extends the arc past its start & end.
-      // First, we tweak the -90deg rotation to adjust
-      const strokeWidthPx = Number(gaugeArc.getAttribute('stroke-width'));
-      const rotationalAdjustmentPercent = 0.5 * strokeWidthPx / circumferencePx;
-      gaugeArc.style.transform = `rotate(${-90 + rotationalAdjustmentPercent * 360}deg)`;
-      // Then, we terminate the line a little early as well.
-      const arcLengthPx = numericScore * circumferencePx - strokeWidthPx;
-      // Credit to xgad for the technique: https://codepen.io/xgad/post/svg-radial-progress-meters
-      gaugeArc.style.strokeDasharray = `${Math.max(arcLengthPx, 0)} ${circumferencePx}`;
-    }
+    if (gaugeArc) this._setGaugeArc(gaugeArc, numericScore);
 
     const scoreOutOf100 = Math.round(numericScore * 100);
     const percentageEl = this.dom.find('.lh-gauge__percentage', tmpl);
@@ -361,6 +350,24 @@ class CategoryRenderer {
 
     this.dom.find('.lh-gauge__label', tmpl).textContent = category.title;
     return tmpl;
+  }
+
+  /**
+   *
+   * @param {SVGCircleElement} elem
+   * @param {number} percent
+   */
+  _setGaugeArc(elem, percent) {
+    const circumferencePx = 2 * Math.PI * Number(elem.getAttribute('r'));
+    // The rounded linecap of the stroke extends the arc past its start & end.
+    // First, we tweak the -90deg rotation to adjust
+    const strokeWidthPx = Number(elem.getAttribute('stroke-width'));
+    const rotationalAdjustmentPercent = 0.5 * strokeWidthPx / circumferencePx;
+    elem.style.transform = `rotate(${-90 + rotationalAdjustmentPercent * 360}deg)`;
+    // Then, we terminate the line a little early as well.
+    const arcLengthPx = percent * circumferencePx - strokeWidthPx;
+    // Credit to xgad for the technique: https://codepen.io/xgad/post/svg-radial-progress-meters
+    elem.style.strokeDasharray = `${Math.max(arcLengthPx, 0)} ${circumferencePx}`;
   }
 
   /**
