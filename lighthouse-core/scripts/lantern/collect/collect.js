@@ -87,12 +87,11 @@ async function runUnthrottledLocally(url) {
     '--throttling-method=provided',
     '--output=json',
     `-AG=${artifactsFolder}`,
-    process.env.NO_OOPIFS === '1' ? '--chrome-flags=--disable-features=site-per-process' : '',
+    process.env.OOPIFS === '1' ? '' : '--chrome-flags=--disable-features=site-per-process',
   ], {
     // Default (1024 * 1024) is too small.
     maxBuffer: 10 * 1024 * 1024,
   });
-  // Make the JSON small.
   const lhr = JSON.parse(stdout);
   assertLhr(lhr);
   const devtoolsLog = fs.readFileSync(`${artifactsFolder}/defaultPass.devtoolslog.json`, 'utf-8');
