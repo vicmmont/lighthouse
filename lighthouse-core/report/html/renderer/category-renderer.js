@@ -362,10 +362,10 @@ class CategoryRenderer {
     // The rounded linecap of the stroke extends the arc past its start & end.
     // First, we tweak the -90deg rotation to adjust
     const strokeWidthPx = Number(elem.getAttribute('stroke-width'));
-    const rotationalAdjustmentPercent = 0.5 * 0.5 * strokeWidthPx / circumferencePx;
+    const rotationalAdjustmentPercent = 0.25 * strokeWidthPx / circumferencePx;
     elem.style.transform = `rotate(${-90 + rotationalAdjustmentPercent * 360}deg)`;
     // Then, we terminate the line a little early as well.
-    let arcLengthPx = percent * circumferencePx - strokeWidthPx / 4;
+    let arcLengthPx = percent * circumferencePx - strokeWidthPx / 2;
 
     // Special cases. No dot for 0, and full ring if 100
     if (percent === 0) elem.style.opacity = '0';
