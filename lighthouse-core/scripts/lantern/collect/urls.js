@@ -29,7 +29,6 @@ module.exports = [
   'https://en-maktoob.yahoo.com/?p=xa',
   'https://en.softonic.com',
   'https://gm.58.com/glsanfrancisco-sl/',
-  'https://m.douban.com/',
   'https://m.facebook.com/',
   'https://m.hexun.com/',
   'https://m.huffpost.com/',
