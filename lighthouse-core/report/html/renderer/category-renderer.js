@@ -362,10 +362,15 @@ class CategoryRenderer {
     // The rounded linecap of the stroke extends the arc past its start & end.
     // First, we tweak the -90deg rotation to adjust
     const strokeWidthPx = Number(elem.getAttribute('stroke-width'));
-    const rotationalAdjustmentPercent = 0.5 * strokeWidthPx / circumferencePx;
+    const rotationalAdjustmentPercent = 0.5 * 0.5 * strokeWidthPx / circumferencePx;
     elem.style.transform = `rotate(${-90 + rotationalAdjustmentPercent * 360}deg)`;
     // Then, we terminate the line a little early as well.
-    const arcLengthPx = percent * circumferencePx - strokeWidthPx;
+    let arcLengthPx = percent * circumferencePx - strokeWidthPx / 4;
+
+    // Special cases. No dot for 0, and full ring if 100
+    if (percent === 0) elem.style.opacity = '0';
+    if (percent === 1) arcLengthPx += strokeWidthPx / 2;
+
     // Credit to xgad for the technique: https://codepen.io/xgad/post/svg-radial-progress-meters
     elem.style.strokeDasharray = `${Math.max(arcLengthPx, 0)} ${circumferencePx}`;
   }
