@@ -33,6 +33,11 @@ const gatherers = LighthouseRunner.getGathererList()
 const locales = fs.readdirSync(__dirname + '/../lighthouse-core/lib/i18n/locales/')
     .map(f => require.resolve(`../lighthouse-core/lib/i18n/locales/${f}`));
 
+// HACK: manually include the lighthouse-plugin-publisher-ads audits.
+/** @type {Array<string>} */
+// @ts-ignore
+const pubAdsAudits = require('lighthouse-plugin-publisher-ads/plugin.js').audits.map(a => a.path);
+
 /** @param {string} file */
 const isDevtools = file => path.basename(file).includes('devtools');
 /** @param {string} file */
@@ -83,6 +88,7 @@ async function browserifyFile(entryPath, distPath) {
   }
 
   // Expose the audits, gatherers, and computed artifacts so they can be dynamically loaded.
+  // Exposed path relative to lighthouse-core/config/config-helpers.js (where loading occurs).
   const corePath = './lighthouse-core/';
   const driverPath = `${corePath}gather/`;
   audits.forEach(audit => {
@@ -91,6 +97,13 @@ async function browserifyFile(entryPath, distPath) {
   gatherers.forEach(gatherer => {
     bundle = bundle.require(gatherer, {expose: gatherer.replace(driverPath, '../gather/')});
   });
+
+  // HACK: manually include the lighthouse-plugin-publisher-ads audits.
+  if (isDevtools(entryPath)) {
+    pubAdsAudits.forEach(pubAdAudit => {
+      bundle = bundle.require(pubAdAudit, {expose: '../../node_modules/' + pubAdAudit});
+    });
+  }
 
   // browerify's url shim doesn't work with .URL in node_modules,
   // and within robots-parser, it does `var URL = require('url').URL`, so we expose our own.

@@ -14,13 +14,15 @@ const {registerLocaleData, lookupLocale} = require('../lighthouse-core/lib/i18n/
 
 /**
  * Return a version of the default config, filtered to only run the specified
- * categories.
+ * categories. Exclude `lighthouse-plugin-publisher-ads` to not include the
+ * plugin in the run.
  * @param {Array<string>} categoryIDs
  * @return {LH.Config.Json}
  */
 function getDefaultConfigForCategories(categoryIDs) {
   return {
     extends: 'lighthouse:default',
+    plugins: ['lighthouse-plugin-publisher-ads'],
     settings: {
       onlyCategories: categoryIDs,
     },
