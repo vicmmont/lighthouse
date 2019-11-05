@@ -2,8 +2,8 @@
 
 exports[`Metrics: Lantern FMP should compute predicted value 1`] = `
 Object {
-  "optimistic": 1362,
-  "pessimistic": 1362,
-  "timing": 1362,
+  "optimistic": 1469,
+  "pessimistic": 1613,
+  "timing": 1541,
 }
 `;

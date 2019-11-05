@@ -150,7 +150,6 @@ class PageDependencyGraph {
         isFirst = foundFirstParse = true;
       }
       if (isShort && !isFirst) {
-        i++;
         continue;
       }
 

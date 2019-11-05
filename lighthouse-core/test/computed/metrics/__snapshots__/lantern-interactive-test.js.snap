@@ -2,16 +2,16 @@
 
 exports[`Metrics: Lantern TTI should compute predicted value 1`] = `
 Object {
-  "optimistic": 1362,
-  "pessimistic": 1362,
-  "timing": 1362,
+  "optimistic": 3351,
+  "pessimistic": 3502,
+  "timing": 3427,
 }
 `;
 
 exports[`Metrics: Lantern TTI should compute predicted value on iframes with substantial layout 1`] = `
 Object {
-  "optimistic": 5050,
-  "pessimistic": 5085,
-  "timing": 5067,
+  "optimistic": 6657,
+  "pessimistic": 6692,
+  "timing": 6674,
 }
 `;
