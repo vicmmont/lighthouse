@@ -138,6 +138,7 @@ class PageDependencyGraph {
 
       // Skip trace events that do not have a sizable duration,
       // unless the event is the first ParseHTML/Layout/Paint.
+      // See https://github.com/GoogleChrome/lighthouse/issues/9627#issuecomment-526699524 for more.
       const isShort = !evt.dur || evt.dur < minimumEvtDur;
       let isFirst = false;
       if (!foundFirstLayout && children.some(evt => evt.name === 'Layout')) {
