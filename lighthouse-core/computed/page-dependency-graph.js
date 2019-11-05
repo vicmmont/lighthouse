@@ -112,15 +112,14 @@ class PageDependencyGraph {
     TracingProcessor.assertHasToplevelEvents(traceOfTab.mainThreadEvents);
 
     const minimumEvtDur = MINIMUM_TASK_DURATION_OF_INTEREST * 1000;
+    let foundFirstLayout = false;
+    let foundFirstPaint = false;
+    let foundFirstParse = false;
     while (i < traceOfTab.mainThreadEvents.length) {
       const evt = traceOfTab.mainThreadEvents[i];
 
-      // Skip all trace events that aren't schedulable tasks with sizable duration
-      if (
-        !TracingProcessor.isScheduleableTask(evt) ||
-        !evt.dur ||
-        evt.dur < minimumEvtDur
-      ) {
+      // Skip all trace events that aren't schedulable tasks.
+      if (!TracingProcessor.isScheduleableTask(evt)) {
         i++;
         continue;
       }
@@ -135,6 +134,24 @@ class PageDependencyGraph {
         i++
       ) {
         children.push(traceOfTab.mainThreadEvents[i]);
+      }
+
+      // Skip trace events that do not have a sizable duration,
+      // unless the event is the first ParseHTML/Layout/Paint.
+      const isShort = !evt.dur || evt.dur < minimumEvtDur;
+      let isFirst = false;
+      if (!foundFirstLayout && children.some(evt => evt.name === 'Layout')) {
+        isFirst = foundFirstLayout = true;
+      }
+      if (!foundFirstPaint && children.some(evt => evt.name === 'Paint')) {
+        isFirst = foundFirstPaint = true;
+      }
+      if (!foundFirstParse && children.some(evt => evt.name === 'ParseHTML')) {
+        isFirst = foundFirstParse = true;
+      }
+      if (isShort && !isFirst) {
+        i++;
+        continue;
       }
 
       nodes.push(new CPUNode(evt, children));
