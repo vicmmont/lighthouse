@@ -352,4 +352,7 @@ Most artifacts will try to represent as truthfully as possible what was observed
 
 - [Field Performance](https://github.com/treosh/lighthouse-plugin-field-performance) - A plugin to gather and display Chrome UX Report field data
 - [Publisher Ads Audits](https://github.com/googleads/pub-ads-lighthouse-plugin) - a well-written, but complex, plugin
+- [Green Web Foundation](https://github.com/thegreenwebfoundation/lighthouse-plugin-greenhouse) - A plugin to see which domains run on renewable power. 
+- [requests-content-md5](https://www.npmjs.com/package/lighthouse-plugin-md5) - A plugin to help you generate network requests content md5 and set in resource-content-md5 audit.
+- [Cinememe Plugin](https://github.com/exterkamp/lighthouse-plugin-cinememe) - Lighthouse plugin to find dank cinememes in a page.
 - [Lighthouse Plugin Recipe](./recipes/lighthouse-plugin-example)
