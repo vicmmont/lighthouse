@@ -88,7 +88,7 @@ async function browserifyFile(entryPath, distPath) {
   }
 
   // Expose the audits, gatherers, and computed artifacts so they can be dynamically loaded.
-  // Exposed path relative to lighthouse-core/config/config-helpers.js (where loading occurs).
+  // Exposed path must be a relative path from lighthouse-core/config/config-helpers.js (where loading occurs).
   const corePath = './lighthouse-core/';
   const driverPath = `${corePath}gather/`;
   audits.forEach(audit => {
