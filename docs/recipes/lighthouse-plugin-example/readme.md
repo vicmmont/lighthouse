@@ -17,7 +17,18 @@ rm -rf lighthouse-master
 
 ```sh
 yarn
-yarn lighthouse https://example.com --plugins=.
+yarn lighthouse https://example.com --plugins=. --only-categories=. --view
+```
+
+
+It may also speed up development if you gather once but iterate in audit mode.
+
+```sh
+# Gather artifacts from the browser
+yarn lighthouse https://example.com --plugins=. --only-categories=. --gather-mode
+
+# and then iterate re-running this:
+yarn lighthouse https://example.com --plugins=. --only-categories=. --audit-mode --view
 ```
 
 ## Result
