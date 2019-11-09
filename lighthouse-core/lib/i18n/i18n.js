@@ -108,8 +108,6 @@ const UIStrings = {
   estimatedInputLatencyMetric: 'Estimated Input Latency',
   /** The name of a metric that calculates the total duration of blocking time for a web page. Blocking times are time periods when the page would be blocked (prevented) from responding to user input (clicks, taps, and keypresses will feel slow to respond). Shown to users as the label for the numeric metric value. Ideally fits within a ~40 character limit. */
   totalBlockingTimeMetric: 'Total Blocking Time',
-  /** The name of a metric that marks the time at which the largest in-viewport item of content (image or text) is painted by the browser. Shown to users as the label for the numeric metric value. Ideally fits within a ~40 character limit. */
-  largestContentfulPaintMetric: 'Largest Contentful Paint',
   /** The name of the metric "Maximum Potential First Input Delay" that marks the maximum estimated time between the page receiving input (a user clicking, tapping, or typing) and the page responding. Shown to users as the label for the numeric metric value. Ideally fits within a ~40 character limit. */
   maxPotentialFIDMetric: 'Max Potential First Input Delay',
   /** The name of the metric that summarizes how quickly the page looked visually complete. The name of this metric is largely abstract and can be loosely translated. Shown to users as the label for the numeric metric value. Ideally fits within a ~40 character limit. */
