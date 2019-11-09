@@ -140,6 +140,7 @@ function requireAudits(audits, configDir) {
       if (!coreAudit) {
         // TODO: refactor and delete `global.isDevtools`.
         if (global.isDevtools) {
+          // This is for pubads bundling.
           requirePath = audit.path;
         } else {
           // Otherwise, attempt to find it elsewhere. This throws if not found.
