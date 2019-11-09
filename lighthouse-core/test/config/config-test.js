@@ -756,6 +756,12 @@ describe('Config', () => {
     // Include a configPath flag so that config.js looks for the plugins in the fixtures dir.
     const configFixturePath = __dirname + '/../fixtures/config-plugins/';
 
+    function makeRelativePluginPath(pluginName) {
+      const absolutePath = path.resolve(configFixturePath, pluginName);
+      const relativePath = './' + path.relative('.', absolutePath);
+      return relativePath;
+    }
+
     it('should append audits', () => {
       const configJson = {
         audits: ['installable-manifest', 'metrics'],
@@ -856,12 +862,6 @@ describe('Config', () => {
     });
 
     it('should load plugins from the config and from passed-in flags (relative paths)', () => {
-      function makeRelativePluginPath(pluginName) {
-        const absolutePath = path.resolve(configFixturePath, pluginName);
-        const relativePath = './' + path.relative('.', absolutePath);
-        return relativePath;
-      }
-
       const baseConfigJson = {
         audits: ['installable-manifest'],
         categories: {
@@ -920,6 +920,14 @@ describe('Config', () => {
       };
       assert.throws(() => new Config(configJson, {configPath: configFixturePath}),
         /^Error: plugin name 'just-let-me-be-a-plugin' does not start with 'lighthouse-plugin-'/);
+    });
+
+    it('should not throw if the plugin name does not begin with "lighthouse-plugin-" (rel.)', () => {
+      const configJson = {
+        extends: 'lighthouse:default',
+        plugins: [makeRelativePluginPath('just-let-me-be-a-plugin')],
+      };
+      assert.doesNotThrow(() => new Config(configJson, {configPath: configFixturePath}));
     });
 
     it('should throw if the plugin name would shadow a category id', () => {

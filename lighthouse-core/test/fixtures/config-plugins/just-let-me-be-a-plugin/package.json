@@ -1,0 +1,5 @@
+{
+  "name": "just-let-me-be-a-plugin",
+  "private": true,
+  "main": "./plugin-just-let-me-be-a-plugin.js"
+}
