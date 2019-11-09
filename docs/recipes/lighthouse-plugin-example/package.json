@@ -6,6 +6,6 @@
     "lighthouse": "^5.0.0"
   },
   "devDependencies": {
-    "lighthouse": "^5.0.0"
+    "lighthouse": "latest"
   }
 }

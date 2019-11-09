@@ -183,7 +183,7 @@ function resolveModule(moduleIdentifier, configDir, category) {
     return require.resolve(cwdPath);
   } catch (e) {}
 
-  const errorString = 'Unable to locate ' + (category ? `${category}: ` : '') +
+  let errorString = 'Unable to locate ' + (category ? `${category}: ` : '') +
     `\`${moduleIdentifier}\`.
      Tried to require() from these locations:
        ${__dirname}
@@ -191,6 +191,18 @@ function resolveModule(moduleIdentifier, configDir, category) {
 
   if (!configDir) {
     throw new Error(errorString);
+  }
+
+  if (moduleIdentifier.startsWith('lighthouse-plugin-')) {
+    // See if the module resolves in the context of the current working directory.
+    // Most useful to handle the case of Lighthouse plugin development.
+    const cwdPath = path.resolve(process.cwd(), '../', moduleIdentifier);
+    try {
+      return require.resolve(cwdPath);
+    } catch (e) {}
+
+    errorString += `
+        ${cwdPath}`;
   }
 
   // Finally, try looking up relative to the config file path. Just like the
