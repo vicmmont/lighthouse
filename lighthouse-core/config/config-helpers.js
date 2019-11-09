@@ -138,7 +138,8 @@ function requireAudits(audits, configDir) {
       const coreAudit = coreList.find(a => a === auditPathJs);
       let requirePath = `../audits/${audit.path}`;
       if (!coreAudit) {
-        if (global.devtools) {
+        // TODO: refactor and delete `global.isDevtools`.
+        if (global.isDevtools) {
           requirePath = audit.path;
         } else {
           // Otherwise, attempt to find it elsewhere. This throws if not found.
