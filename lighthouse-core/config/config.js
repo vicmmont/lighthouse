@@ -20,6 +20,7 @@ const {requireAudits, mergeOptionsOfItems, resolveModule} = require('./config-he
 
 /** @typedef {typeof import('../gather/gatherers/gatherer.js')} GathererConstructor */
 /** @typedef {InstanceType<GathererConstructor>} Gatherer */
+/** @typedef {import('./config-helpers.js').ResolveLocation} ResolveLocation */
 
 /**
  * Define with object literal so that tsc will require it to stay updated.
@@ -321,22 +322,26 @@ class Config {
     // The directory of the config path, if one was provided.
     const configDir = configPath ? path.dirname(configPath) : undefined;
 
+    /** @type {ResolveLocation[]} */
+    const resolveLocations = [];
+    if (configDir) resolveLocations.push({prefix: '', dir: configDir});
+
     // Validate and merge in plugins (if any).
-    configJSON = Config.mergePlugins(configJSON, flags, configDir);
+    configJSON = Config.mergePlugins(configJSON, flags, resolveLocations);
 
     const settings = Config.initSettings(configJSON.settings, flags);
 
     // Augment passes with necessary defaults and require gatherers.
     const passesWithDefaults = Config.augmentPassesWithDefaults(configJSON.passes);
     Config.adjustDefaultPassForThrottling(settings, passesWithDefaults);
-    const passes = Config.requireGatherers(passesWithDefaults, configDir);
+    const passes = Config.requireGatherers(passesWithDefaults, resolveLocations);
 
     /** @type {LH.Config.Settings} */
     this.settings = settings;
     /** @type {?Array<LH.Config.Pass>} */
     this.passes = passes;
     /** @type {?Array<LH.Config.AuditDefn>} */
-    this.audits = Config.requireAudits(configJSON.audits, configDir);
+    this.audits = Config.requireAudits(configJSON.audits, resolveLocations);
     /** @type {?Record<string, LH.Config.Category>} */
     this.categories = configJSON.categories || null;
     /** @type {?Record<string, LH.Config.Group>} */
@@ -418,23 +423,63 @@ class Config {
   }
 
   /**
+   * @param {string} pluginIdentifier
+   * @param {ResolveLocation[]} resolveLocations
+   */
+  static determinePluginNameAndPath(pluginIdentifier, resolveLocations) {
+    const isRelativePath = pluginIdentifier.startsWith('.'); // TODO: also support absolute path?
+    if (isRelativePath) {
+      const absolutePath = path.resolve(pluginIdentifier);
+      return {
+        pluginName: path.basename(absolutePath),
+        pluginPath: resolveModule(pluginIdentifier, resolveLocations, 'plugin'),
+        relative: true,
+      };
+    }
+
+    return {
+      pluginName: pluginIdentifier,
+      pluginPath: resolveModule(pluginIdentifier, resolveLocations, 'plugin'),
+      relative: false,
+    };
+  }
+
+  /**
+   * @param {LH.Config.Json} configJSON
+   * @param {string} pluginIdentifier
+   * @param {ResolveLocation[]} resolveLocations
+   */
+  static loadPluginJson(configJSON, pluginIdentifier, resolveLocations) {
+    const {pluginName, pluginPath, relative} = Config.determinePluginNameAndPath(pluginIdentifier, resolveLocations);
+
+    // We only care to assert that published plugins follow a naming convention.
+    if (!relative) assertValidPluginName(configJSON, pluginName);
+
+    const rawPluginJson = require(pluginPath);
+    const pluginJson = ConfigPlugin.parsePlugin(rawPluginJson, pluginName);
+
+    // Add plugin directory to the resolution locations so its audits and gatherers can be found.
+    if (relative) {
+      const pluginDir = path.dirname(pluginPath);
+      resolveLocations.push({prefix: pluginName, dir: pluginDir});
+    }
+
+    return pluginJson;
+  }
+
+  /**
    * @param {LH.Config.Json} configJSON
    * @param {LH.Flags=} flags
-   * @param {string=} configDir
+   * @param {ResolveLocation[]} resolveLocations
    * @return {LH.Config.Json}
    */
-  static mergePlugins(configJSON, flags, configDir) {
+  static mergePlugins(configJSON, flags, resolveLocations) {
     const configPlugins = configJSON.plugins || [];
     const flagPlugins = (flags && flags.plugins) || [];
-    const pluginNames = new Set([...configPlugins, ...flagPlugins]);
+    const pluginIdentifiers = new Set([...configPlugins, ...flagPlugins]);
 
-    for (const pluginName of pluginNames) {
-      assertValidPluginName(configJSON, pluginName);
-
-      const pluginPath = resolveModule(pluginName, configDir, 'plugin');
-      const rawPluginJson = require(pluginPath);
-      const pluginJson = ConfigPlugin.parsePlugin(rawPluginJson, pluginName);
-
+    for (const pluginIdentifier of pluginIdentifiers) {
+      const pluginJson = Config.loadPluginJson(configJSON, pluginIdentifier, resolveLocations);
       configJSON = Config.extendConfigJSON(configJSON, pluginJson);
     }
 
@@ -724,16 +769,16 @@ class Config {
 
   /**
    * Take an array of audits and audit paths and require any paths (possibly
-   * relative to the optional `configDir`) using `resolveModule`,
+   * relative to the optional `resolveLocations`) using `resolveModule`,
    * leaving only an array of AuditDefns.
    * @param {LH.Config.Json['audits']} audits
-   * @param {string=} configDir
+   * @param {ResolveLocation[]} resolveLocations
    * @return {Config['audits']}
    */
-  static requireAudits(audits, configDir) {
+  static requireAudits(audits, resolveLocations) {
     const status = {msg: 'Requiring audits', id: 'lh:config:requireAudits'};
     log.time(status, 'verbose');
-    const auditDefns = requireAudits(audits, configDir);
+    const auditDefns = requireAudits(audits, resolveLocations);
     log.timeEnd(status);
     return auditDefns;
   }
@@ -742,16 +787,16 @@ class Config {
    * @param {string} path
    * @param {{}=} options
    * @param {Array<string>} coreAuditList
-   * @param {string=} configDir
+   * @param {ResolveLocation[]} resolveLocations
    * @return {LH.Config.GathererDefn}
    */
-  static requireGathererFromPath(path, options, coreAuditList, configDir) {
+  static requireGathererFromPath(path, options, coreAuditList, resolveLocations) {
     const coreGatherer = coreAuditList.find(a => a === `${path}.js`);
 
     let requirePath = `../gather/gatherers/${path}`;
     if (!coreGatherer) {
       // Otherwise, attempt to find it elsewhere. This throws if not found.
-      requirePath = resolveModule(path, configDir, 'gatherer');
+      requirePath = resolveModule(path, resolveLocations, 'gatherer');
     }
 
     const GathererClass = /** @type {GathererConstructor} */ (require(requirePath));
@@ -769,10 +814,10 @@ class Config {
    * gatherers and requires them, (relative to the optional `configDir` if
    * provided) using `resolveModule`, returning an array of full Passes.
    * @param {?Array<Required<LH.Config.PassJson>>} passes
-   * @param {string=} configDir
+   * @param {ResolveLocation[]} resolveLocations
    * @return {Config['passes']}
    */
-  static requireGatherers(passes, configDir) {
+  static requireGatherers(passes, resolveLocations) {
     if (!passes) {
       return null;
     }
@@ -800,7 +845,7 @@ class Config {
         } else if (gathererDefn.path) {
           const path = gathererDefn.path;
           const options = gathererDefn.options;
-          return Config.requireGathererFromPath(path, options, coreList, configDir);
+          return Config.requireGathererFromPath(path, options, coreList, resolveLocations);
         } else {
           throw new Error('Invalid expanded Gatherer: ' + JSON.stringify(gathererDefn));
         }

@@ -855,6 +855,45 @@ describe('Config', () => {
       assert.deepStrictEqual(allPluginsInConfigConfig, pluginsInConfigAndFlagsConfig);
     });
 
+    it('should load plugins from the config and from passed-in flags (relative paths)', () => {
+      function makeRelativePluginPath(pluginName) {
+        const absolutePath = path.resolve(configFixturePath, pluginName);
+        const relativePath = './' + path.relative('.', absolutePath);
+        return relativePath;
+      }
+
+      const baseConfigJson = {
+        audits: ['installable-manifest'],
+        categories: {
+          myManifest: {
+            auditRefs: [{id: 'installable-manifest', weight: 9000}],
+          },
+        },
+      };
+      const baseFlags = {configPath: configFixturePath};
+      const simplePluginName = makeRelativePluginPath('lighthouse-plugin-simple');
+      const noGroupsPluginName = makeRelativePluginPath('lighthouse-plugin-no-groups');
+
+      const allConfigConfigJson = {...baseConfigJson, plugins: [simplePluginName,
+        noGroupsPluginName]};
+      const allPluginsInConfigConfig = new Config(allConfigConfigJson, baseFlags);
+
+      const allFlagsFlags = {...baseFlags, plugins: [simplePluginName, noGroupsPluginName]};
+      const allPluginsInFlagsConfig = new Config(baseConfigJson, allFlagsFlags);
+
+      const mixedConfigJson = {...baseConfigJson, plugins: [simplePluginName]};
+      const mixedFlags = {...baseFlags, plugins: [noGroupsPluginName]};
+      const pluginsInConfigAndFlagsConfig = new Config(mixedConfigJson, mixedFlags);
+
+      // Double check that we're not comparing empty objects.
+      const categoryNames = Object.keys(allPluginsInConfigConfig.categories);
+      assert.deepStrictEqual(categoryNames,
+        ['myManifest', 'lighthouse-plugin-simple', 'lighthouse-plugin-no-groups']);
+
+      assert.deepStrictEqual(allPluginsInConfigConfig, allPluginsInFlagsConfig);
+      assert.deepStrictEqual(allPluginsInConfigConfig, pluginsInConfigAndFlagsConfig);
+    });
+
     it('should throw if the plugin is invalid', () => {
       const configJson = {
         extends: 'lighthouse:default',
@@ -1090,7 +1129,7 @@ describe('Config', () => {
       assert.equal(typeof gatherer.instance.beforePass, 'function');
     });
 
-    it('loads a gatherer relative to a config path', () => {
+    it.only('loads a gatherer relative to a config path', () => {
       const config = new Config({
         passes: [{gatherers: ['../fixtures/valid-custom-gatherer']}],
       }, {configPath: __filename});

@@ -9,6 +9,8 @@ const path = require('path');
 const Audit = require('../audits/audit.js');
 const Runner = require('../runner.js');
 
+/** @typedef {{prefix: string, dir: string}} ResolveLocation */
+
 /**
  * If any items with identical `path` properties are found in the input array,
  * merge their `options` properties into the first instance and then discard any
@@ -115,13 +117,13 @@ function expandAuditShorthand(audits) {
 
 /**
  * Take an array of audits and audit paths and require any paths (possibly
- * relative to the optional `configDir`) using `resolveModule`,
+ * relative to the optional `resolveLocations`) using `resolveModule`,
  * leaving only an array of AuditDefns.
  * @param {LH.Config.Json['audits']} audits
- * @param {string=} configDir
+ * @param {ResolveLocation[]} resolveLocations
  * @return {Array<LH.Config.AuditDefn>|null}
  */
-function requireAudits(audits, configDir) {
+function requireAudits(audits, resolveLocations) {
   const expandedAudits = expandAuditShorthand(audits);
   if (!expandedAudits) {
     return null;
@@ -139,7 +141,7 @@ function requireAudits(audits, configDir) {
       let requirePath = `../audits/${audit.path}`;
       if (!coreAudit) {
         // Otherwise, attempt to find it elsewhere. This throws if not found.
-        requirePath = resolveModule(audit.path, configDir, 'audit');
+        requirePath = resolveModule(audit.path, resolveLocations, 'audit');
       }
       implementation = /** @type {typeof Audit} */ (require(requirePath));
     }
@@ -161,12 +163,12 @@ function requireAudits(audits, configDir) {
  * string path to the file. Used for loading custom audits and gatherers.
  * Throws an error if no module is found.
  * @param {string} moduleIdentifier
- * @param {string=} configDir The absolute path to the directory of the config file, if there is one.
+ * @param {ResolveLocation[]} resolveLocations Absolute paths to the directories to look in.
  * @param {string=} category Optional plugin category (e.g. 'audit') for better error messages.
  * @return {string}
  * @throws {Error}
  */
-function resolveModule(moduleIdentifier, configDir, category) {
+function resolveModule(moduleIdentifier, resolveLocations, category) {
   // First try straight `require()`. Unlikely to be specified relative to this
   // file, but adds support for Lighthouse modules from npm since
   // `require()` walks up parent directories looking inside any node_modules/
@@ -188,19 +190,28 @@ function resolveModule(moduleIdentifier, configDir, category) {
     (category ? `${category}: ` : '') +
     `${moduleIdentifier} (tried to require() from '${__dirname}' and load from '${cwdPath}'`;
 
-  if (!configDir) {
+  if (resolveLocations.length === 0) {
     throw new Error(errorString + ')');
   }
 
-  // Finally, try looking up relative to the config file path. Just like the
+  // Finally, try looking up relative to the given locations. Just like the
   // relative path passed to `require()` is found relative to the file it's
   // in, this allows module paths to be specified relative to the config file.
-  const relativePath = path.resolve(configDir, moduleIdentifier);
-  try {
-    return require.resolve(relativePath);
-  } catch (requireError) {}
+  // Additionally, locally defined plugins will map modules starting with that
+  // plugin name to the correct directory (using the prefix constraint).
+  for (const {prefix, dir} of resolveLocations) {
+    if (!moduleIdentifier.startsWith(prefix)) continue;
 
-  throw new Error(errorString + ` and '${relativePath}')`);
+    // Only replace if the prefix is truthy.
+    const moduleIdentifierPrefixRemoved = moduleIdentifier.replace(prefix, '');
+
+    try {
+      return require.resolve(path.join(dir, moduleIdentifierPrefixRemoved));
+    } catch (requireError) {}
+  }
+
+  // TODO: refactor this method so making this error message is easier.
+  throw new Error(errorString + ` and within '${resolveLocations.map(l => l.dir)}')`);
 }
 
 module.exports = {
