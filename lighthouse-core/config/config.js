@@ -424,22 +424,20 @@ class Config {
 
   /**
    * @param {string} pluginIdentifier
-   * @param {ResolveLocation[]} resolveLocations
    */
-  static determinePluginNameAndPath(pluginIdentifier, resolveLocations) {
+  static determinePluginName(pluginIdentifier) {
     const isRelativePath = pluginIdentifier.startsWith('.'); // TODO: also support absolute path?
+
     if (isRelativePath) {
       const absolutePath = path.resolve(pluginIdentifier);
       return {
         pluginName: path.basename(absolutePath),
-        pluginPath: resolveModule(pluginIdentifier, resolveLocations, 'plugin'),
         relative: true,
       };
     }
 
     return {
       pluginName: pluginIdentifier,
-      pluginPath: resolveModule(pluginIdentifier, resolveLocations, 'plugin'),
       relative: false,
     };
   }
@@ -450,7 +448,8 @@ class Config {
    * @param {ResolveLocation[]} resolveLocations
    */
   static loadPluginJson(configJSON, pluginIdentifier, resolveLocations) {
-    const {pluginName, pluginPath, relative} = Config.determinePluginNameAndPath(pluginIdentifier, resolveLocations);
+    const {pluginName, relative} = Config.determinePluginName(pluginIdentifier);
+    const pluginPath = resolveModule(pluginIdentifier, resolveLocations, 'plugin');
 
     // We only care to assert that published plugins follow a naming convention.
     if (!relative) assertValidPluginName(configJSON, pluginName);
