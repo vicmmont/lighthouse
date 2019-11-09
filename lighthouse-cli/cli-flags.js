@@ -130,7 +130,7 @@ function getFlags(manualArgv) {
         'only-audits': 'Only run the specified audits',
         'only-categories': 'Only run the specified categories. Available categories: accessibility, best-practices, performance, pwa, seo',
         'skip-audits': 'Run everything except these audits',
-        'plugins': 'Run the specified plugins',
+        'plugins': 'Run the specified plugins. To use a plugin from it\'s development directory, set as `.`',
         'print-config': 'Print the normalized config for the given config and options, then exit.',
       })
       // set aliases
