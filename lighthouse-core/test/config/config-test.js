@@ -1129,7 +1129,7 @@ describe('Config', () => {
       assert.equal(typeof gatherer.instance.beforePass, 'function');
     });
 
-    it.only('loads a gatherer relative to a config path', () => {
+    it('loads a gatherer relative to a config path', () => {
       const config = new Config({
         passes: [{gatherers: ['../fixtures/valid-custom-gatherer']}],
       }, {configPath: __filename});

@@ -449,11 +449,11 @@ class Config {
    */
   static loadPluginJson(configJSON, pluginIdentifier, resolveLocations) {
     const {pluginName, relative} = Config.determinePluginName(pluginIdentifier);
-    const pluginPath = resolveModule(pluginIdentifier, resolveLocations, 'plugin');
 
     // We only care to assert that published plugins follow a naming convention.
     if (!relative) assertValidPluginName(configJSON, pluginName);
 
+    const pluginPath = resolveModule(pluginIdentifier, resolveLocations, 'plugin');
     const rawPluginJson = require(pluginPath);
     const pluginJson = ConfigPlugin.parsePlugin(rawPluginJson, pluginName);
 
