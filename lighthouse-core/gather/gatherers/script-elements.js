@@ -94,7 +94,7 @@ class ScriptElements extends Gatherer {
     const scriptRecordContents = await runInSeriesOrParallel(
       scriptRecords,
       record => driver.getRequestContent(record.requestId).catch(() => ''),
-      passContext.baseArtifacts.HostFormFactor === 'mobile');
+      passContext.baseArtifacts.HostFormFactor === 'mobile' /* runInSeries*/ );
 
     for (let i = 0; i < scriptRecords.length; i++) {
       const record = scriptRecords[i];
