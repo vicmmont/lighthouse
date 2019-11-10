@@ -179,6 +179,7 @@ const defaultConfig = {
     'metrics/first-contentful-paint',
     'metrics/largest-contentful-paint',
     'metrics/first-meaningful-paint',
+    'metrics/largest-contentful-paint',
     'load-fast-enough-for-pwa',
     'metrics/speed-index',
     'screenshot-thumbnails',
