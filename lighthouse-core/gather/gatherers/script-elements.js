@@ -39,6 +39,27 @@ function collectAllScriptElements() {
 }
 
 /**
+ * @template T, U
+ * @param {Array<T>} values
+ * @param {(value: T) => Promise<U>} promiseMapper
+ * @param {boolean} runInSeries
+ * @return {Promise<Array<U>>}
+ */
+async function runInSeriesOrParallel(values, promiseMapper, runInSeries) {
+  if (runInSeries) {
+    const results = [];
+    for (const value of values) {
+      const result = await promiseMapper(value);
+      results.push(result);
+    }
+    return results;
+  } else {
+    const promises = values.map(promiseMapper);
+    return await Promise.all(promises);
+  }
+}
+
+/**
  * @fileoverview Gets JavaScript file contents.
  */
 class ScriptElements extends Gatherer {
@@ -68,26 +89,12 @@ class ScriptElements extends Gatherer {
       // Only get the content of script requests
       .filter(record => record.resourceType === NetworkRequest.TYPES.Script);
 
-    // If mobile device, be sensitive of memory limitations and only request one
-    // request content at a time.
-    // TODO: replace with promise pool from smoke pr
-    // Whether Lighthouse was run on a mobile device (i.e. not on a desktop machine).
-    const hostUserAgent = passContext.baseArtifacts.HostUserAgent;
-    const IsMobileHost = hostUserAgent.includes('Android') || hostUserAgent.includes('Mobile');
-    const scriptRecordContents = [];
-    if (IsMobileHost) {
-      for (const record of scriptRecords) {
-        const content = await driver.getRequestContent(record.requestId).catch(() => '');
-        scriptRecordContents.push(content);
-      }
-    } else {
-      const scriptRecordContentPromises = scriptRecords.map(record => {
-        return driver.getRequestContent(record.requestId).catch(() => '');
-      });
-      for (const content of await Promise.all(scriptRecordContentPromises)) {
-        scriptRecordContents.push(content);
-      }
-    }
+    // If run on a mobile device, be sensitive to memory limitations and only request one
+    // record at a time.
+    const scriptRecordContents = await runInSeriesOrParallel(
+      scriptRecords,
+      record => driver.getRequestContent(record.requestId).catch(() => ''),
+      passContext.baseArtifacts.HostFormFactor === 'mobile');
 
     for (let i = 0; i < scriptRecords.length; i++) {
       const record = scriptRecords[i];
