@@ -360,7 +360,7 @@ class CategoryRenderer {
    */
   _setGaugeArc(elem, percent) {
     const circumferencePx = 2 * Math.PI * Number(elem.getAttribute('r'));
-    // The rounded linecap of the stroke extends the arc past its start & end.
+    // The rounded linecap of the stroke extends the arc past its start and end.
     // First, we tweak the -90deg rotation to adjust
     const strokeWidthPx = Number(elem.getAttribute('stroke-width'));
     const rotationalAdjustmentPercent = 0.25 * strokeWidthPx / circumferencePx;
