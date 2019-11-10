@@ -370,7 +370,7 @@ class CategoryRenderer {
     let arcLengthPx = percent * circumferencePx - strokeWidthPx / 2;
     // Special cases. No dot for 0, and full ring if 100
     if (percent === 0) elem.style.opacity = '0';
-    if (percent === 1) arcLengthPx += strokeWidthPx / 2;
+    if (percent === 1) arcLengthPx = circumferencePx;
 
     elem.style.strokeDasharray = `${Math.max(arcLengthPx, 0)} ${circumferencePx}`;
   }
