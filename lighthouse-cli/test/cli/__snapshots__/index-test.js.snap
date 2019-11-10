@@ -28,6 +28,9 @@ Object {
       "path": "metrics/first-meaningful-paint",
     },
     Object {
+      "path": "metrics/largest-contentful-paint",
+    },
+    Object {
       "path": "load-fast-enough-for-pwa",
     },
     Object {
@@ -320,6 +323,9 @@ Object {
     },
     Object {
       "path": "byte-efficiency/unused-css-rules",
+    },
+    Object {
+      "path": "byte-efficiency/unused-javascript",
     },
     Object {
       "path": "byte-efficiency/uses-webp-images",
@@ -743,6 +749,11 @@ Object {
         },
         Object {
           "group": "metrics",
+          "id": "largest-contentful-paint",
+          "weight": 0,
+        },
+        Object {
+          "group": "metrics",
           "id": "speed-index",
           "weight": 4,
         },
@@ -797,6 +808,11 @@ Object {
         Object {
           "group": "load-opportunities",
           "id": "unused-css-rules",
+          "weight": 0,
+        },
+        Object {
+          "group": "load-opportunities",
+          "id": "unused-javascript",
           "weight": 0,
         },
         Object {
@@ -1168,6 +1184,9 @@ Object {
       "gatherers": Array [
         Object {
           "path": "css-usage",
+        },
+        Object {
+          "path": "js-usage",
         },
         Object {
           "path": "viewport-dimensions",

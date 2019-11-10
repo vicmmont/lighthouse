@@ -197,8 +197,8 @@ class GatherRunner {
    * main document request failure, a security issue, etc.
    * @param {LH.Gatherer.PassContext} passContext
    * @param {LH.Gatherer.LoadData} loadData
-   * @param {LighthouseError|undefined} navigationError
-   * @return {LighthouseError|undefined}
+   * @param {LH.LighthouseError|undefined} navigationError
+   * @return {LH.LighthouseError|undefined}
    */
   static getPageLoadError(passContext, loadData, navigationError) {
     const {networkRecords} = loadData;
@@ -456,14 +456,16 @@ class GatherRunner {
 
     const {emulatedFormFactor} = options.settings;
     // Whether Lighthouse was run on a mobile device (i.e. not on a desktop machine).
-    const IsMobileHost = hostUserAgent.includes('Android') || hostUserAgent.includes('Mobile');
+    const HostFormFactor = hostUserAgent.includes('Android') || hostUserAgent.includes('Mobile') ?
+      'mobile' : 'desktop';
     const TestedAsMobileDevice = emulatedFormFactor === 'mobile' ||
-      (emulatedFormFactor !== 'desktop' && IsMobileHost);
+      (emulatedFormFactor !== 'desktop' && HostFormFactor === 'mobile');
 
     return {
       fetchTime: (new Date()).toJSON(),
       LighthouseRunWarnings: [],
       TestedAsMobileDevice,
+      HostFormFactor,
       HostUserAgent: hostUserAgent,
       NetworkUserAgent: '', // updated later
       BenchmarkIndex: 0, // updated later
@@ -597,11 +599,12 @@ class GatherRunner {
   }
 
   /**
-   * Returns whether this pass should be considered to be measuring performance.
+   * Returns whether this pass should clear the caches.
+   * Only if it is a performance run and the settings don't disable it.
    * @param {LH.Gatherer.PassContext} passContext
    * @return {boolean}
    */
-  static isPerfPass(passContext) {
+  static shouldClearCaches(passContext) {
     const {settings, passConfig} = passContext;
     return !settings.disableStorageReset && passConfig.recordTrace && passConfig.useThrottling;
   }
@@ -631,8 +634,9 @@ class GatherRunner {
     // Go to about:blank, set up, and run `beforePass()` on gatherers.
     await GatherRunner.loadBlank(driver, passConfig.blankPage);
     await GatherRunner.setupPassNetwork(passContext);
-    const isPerfPass = GatherRunner.isPerfPass(passContext);
-    if (isPerfPass) await driver.cleanBrowserCaches(); // Clear disk & memory cache if it's a perf run
+    if (GatherRunner.shouldClearCaches(passContext)) {
+      await driver.cleanBrowserCaches(); // Clear disk & memory cache if it's a perf run
+    }
     await GatherRunner.beforePass(passContext, gathererResults);
 
     // Navigate, start recording, and run `pass()` on gatherers.

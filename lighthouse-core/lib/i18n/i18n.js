@@ -76,6 +76,8 @@ const UIStrings = {
   columnTransferSize: 'Transfer Size',
   /** Label for a column in a data table; entries will be the names of arbitrary objects, e.g. the name of a Javascript library, or the name of a user defined timing event. */
   columnName: 'Name',
+  /** Label for a column in a data table; entries will be how much a predetermined budget has been exeeded by. Depending on the context, this number could represent an excess in quantity or size of network requests, or, an excess in the duration of time that it takes for the page to load.*/
+  columnOverBudget: 'Over Budget',
   /** Label for a row in a data table; entries will be the total number and byte size of all resources loaded by a web page. */
   totalResourceType: 'Total',
   /** Label for a row in a data table; entries will be the total number and byte size of all 'Document' resources loaded by a web page. */
@@ -289,7 +291,7 @@ function _formatIcuMessage(locale, icuMessageId, uiStringMessage, values = {}) {
 
     // Warn the user that the UIString message != the `en` message ∴ they should update the strings
     if (!LOCALES.en[icuMessageId] || localeMessage !== LOCALES.en[icuMessageId].message) {
-      log.warn('i18n', `Message "${icuMessageId}" does not match its 'en' counterpart. ` +
+      log.verbose('i18n', `Message "${icuMessageId}" does not match its 'en' counterpart. ` +
         `Run 'i18n' to update.`);
     }
   }
