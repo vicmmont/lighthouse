@@ -5,7 +5,7 @@
  */
 'use strict';
 
-/** @typedef {{devtoolsLog?: string, lhr: string, trace: string}} Result */
+/** @typedef {{devtoolsLog?: string, lhr?: string, trace?: string}} Result */
 /** @typedef {Result & {metrics: import('../../../audits/metrics.js').UberMetricsItem}} ResultWithMetrics */
 /** @typedef {{url: string, wpt: Result[], unthrottled: Result[]}} Summary */
 
@@ -20,12 +20,17 @@ const collectFolder = `${LH_ROOT}/dist/collect-lantern-traces`;
 const summaryPath = `${collectFolder}/summary.json`;
 const goldenFolder = `${LH_ROOT}/dist/golden-lantern-traces`;
 
+const IS_INTERACTIVE = !!process.stdout.isTTY && !process.env.GCP_COLLECT;
+
 class ProgressLogger {
   constructor() {
     this._currentProgressMessage = '';
     this._loadingChars = '⣾⣽⣻⢿⡿⣟⣯⣷ ⠁⠂⠄⡀⢀⠠⠐⠈';
     this._nextLoadingIndex = 0;
-    this._progressBarHandle = setInterval(() => this.progress(this._currentProgressMessage), 100);
+    this._progressBarHandle = setInterval(
+      () => this.progress(this._currentProgressMessage),
+      IS_INTERACTIVE ? 100 : 5000
+    );
   }
 
   /**
@@ -101,8 +106,7 @@ function saveSummary(summary) {
  * @return {LH.Artifacts.TimingSummary}
  */
 function getMetrics(lhr) {
-  const metricsDetails = /** @type {LH.Audit.Details.DebugData=} */ (
-    lhr.audits['metrics'].details);
+  const metricsDetails = /** @type {LH.Audit.Details.DebugData=} */ (lhr.audits['metrics'].details);
   return metricsDetails && metricsDetails.items && metricsDetails.items[0];
 }
 
