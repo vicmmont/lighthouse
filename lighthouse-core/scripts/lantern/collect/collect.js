@@ -52,13 +52,12 @@ async function startWptTest(url) {
     k: WPT_KEY,
     f: 'json',
     url,
-    // Keep the location constant. Use Chrome and 3G network conditions.
-    // Using Beta because we need 78+ traces for LCP.
-    location: 'Dulles_MotoG4:Motorola G (gen 4) - Chrome Beta.3G',
+    location: 'Dulles_MotoG4:Motorola G (gen 4) - Chrome.3G',
     runs: '1',
     lighthouse: '1',
     // Make the trace file available over /getgzip.php.
     lighthouseTrace: '1',
+    lighthouseScreenshots: '1',
     // Disable some things that WPT does, such as a "repeat view" analysis.
     type: 'lighthouse',
   }).toString();
@@ -177,7 +176,17 @@ function assertLhr(lhr) {
   if (!lhr) throw new Error('missing lhr');
   if (lhr.runtimeError) throw new Error(`runtime error: ${lhr.runtimeError}`);
   const metrics = common.getMetrics(lhr);
-  if (metrics && metrics.interactive && metrics.firstContentfulPaint) return;
+  if (metrics &&
+      metrics.estimatedInputLatency &&
+      metrics.firstContentfulPaint &&
+      metrics.firstCPUIdle &&
+      metrics.firstMeaningfulPaint &&
+      metrics.interactive &&
+      metrics.largestContentfulPaint &&
+      metrics.maxPotentialFID &&
+      metrics.speedIndex &&
+      metrics.totalBlockingTime
+  ) return;
   throw new Error('run failed to get metrics');
 }
 
