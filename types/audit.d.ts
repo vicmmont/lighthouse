@@ -66,8 +66,7 @@ declare global {
       wastedPercent?: number;
     }
 
-    /** Type returned by Audit.audit(). Only score is required.  */
-    export interface Product {
+    interface ProductBase {
       /** The scored value of the audit, provided in the range `0-1`, or null if `scoreDisplayMode` indicates not scored. */
       score: number | null;
       displayValue?: string;
@@ -80,11 +79,23 @@ declare global {
       extendedInfo?: {[p: string]: any};
       /** Overrides scoreDisplayMode with notApplicable if set to true */
       notApplicable?: boolean;
-      /** A numeric value that has a meaning specific to the audit, e.g. the number of nodes in the DOM or the timestamp of a specific load event. More information can be found in the audit details, if present. */
-      numericValue?: number;
       /** Extra information about the page provided by some types of audits, in one of several possible forms that can be rendered in the HTML report. */
       details?: Audit.Details;
     }
+
+    interface NonNumericProduct extends ProductBase {
+      numericValue?: never;
+    }
+
+    interface NumericProduct extends ProductBase {
+      /** A numeric value that has a meaning specific to the audit, e.g. the number of nodes in the DOM or the timestamp of a specific load event. More information can be found in the audit details, if present. */
+      numericValue: number;
+      /** The unit of `numericValue`, used when the consumer wishes to convert numericValue to a display string. */
+      numericUnit: 'bytes'|'milliseconds'|'elements'|'requests'|'tasks';
+    }
+
+    /** Type returned by Audit.audit(). Only score is required.  */
+    export type Product = NonNumericProduct | NumericProduct;
 
     /* Audit result returned in Lighthouse report. All audits offer a description and score of 0-1. */
     export interface Result {
@@ -114,6 +125,8 @@ declare global {
       description: string;
       /** A numeric value that has a meaning specific to the audit, e.g. the number of nodes in the DOM or the timestamp of a specific load event. More information can be found in the audit details, if present. */
       numericValue?: number;
+      /** The unit of `numericValue`, used when the consumer wishes to convert numericValue to a display string. */
+      numericUnit?: string;
       /** Extra information about the page provided by some types of audits, in one of several possible forms that can be rendered in the HTML report. */
       details?: Audit.Details;
     }

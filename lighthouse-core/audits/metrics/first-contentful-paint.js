@@ -71,6 +71,7 @@ class FirstContentfulPaint extends Audit {
         scoreOptions.scoreMedian
       ),
       numericValue: metricResult.timing,
+      numericUnit: 'milliseconds',
       displayValue: str_(i18n.UIStrings.seconds, {timeInMs: metricResult.timing}),
     };
   }

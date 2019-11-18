@@ -72,6 +72,7 @@ class TotalBlockingTime extends Audit {
         context.options.scoreMedian
       ),
       numericValue: metricResult.timing,
+      numericUnit: 'milliseconds',
       displayValue: str_(i18n.UIStrings.ms, {timeInMs: metricResult.timing}),
     };
   }

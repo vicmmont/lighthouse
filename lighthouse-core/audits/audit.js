@@ -263,6 +263,8 @@ class Audit {
       }
     }
 
+    const numericProduct = 'numericUnit' in product ? product : undefined;
+
     return {
       id: audit.meta.id,
       title: auditTitle,
@@ -270,7 +272,8 @@ class Audit {
 
       score,
       scoreDisplayMode,
-      numericValue: product.numericValue,
+      numericValue: numericProduct && numericProduct.numericValue,
+      numericUnit: numericProduct && numericProduct.numericUnit,
 
       displayValue: product.displayValue,
       explanation: product.explanation,
