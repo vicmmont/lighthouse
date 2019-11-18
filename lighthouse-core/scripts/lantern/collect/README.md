@@ -34,7 +34,7 @@ Note: some good URLs will 4xx b/c the site blocks such usages of `curl`.
 ## Run
 
 ```sh
-DEBUG=1 WPT_KEY=... NUM_SAMPLES=9 node --max-old-space-size=12288 collect.js
+DEBUG=1 WPT_KEY=... NUM_SAMPLES=3 node --max-old-space-size=4096 collect.js
 ```
 
 Output will be in `dist/collect-lantern-traces`, and zipped at `dist/collect-lantern-traces.zip`.
