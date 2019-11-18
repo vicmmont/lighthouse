@@ -78,6 +78,7 @@
       "score": 0.51,
       "scoreDisplayMode": "numeric",
       "numericValue": 3969.135,
+      "numericUnit": "milliseconds",
       "displayValue": "4.0 s"
     },
     "first-meaningful-paint": {
@@ -87,6 +88,7 @@
       "score": 0.51,
       "scoreDisplayMode": "numeric",
       "numericValue": 3969.136,
+      "numericUnit": "milliseconds",
       "displayValue": "4.0 s"
     },
     "largest-contentful-paint": {
@@ -96,6 +98,7 @@
       "score": 0.31,
       "scoreDisplayMode": "numeric",
       "numericValue": 4927.278,
+      "numericUnit": "milliseconds",
       "displayValue": "4.9 s"
     },
     "load-fast-enough-for-pwa": {
@@ -104,7 +107,8 @@
       "description": "A fast page load over a cellular network ensures a good mobile user experience. [Learn more](https://web.dev/load-fast-enough-for-pwa).",
       "score": 1,
       "scoreDisplayMode": "binary",
-      "numericValue": 4927.278
+      "numericValue": 4927.278,
+      "numericUnit": "milliseconds"
     },
     "speed-index": {
       "id": "speed-index",
@@ -113,6 +117,7 @@
       "score": 0.74,
       "scoreDisplayMode": "numeric",
       "numericValue": 4417,
+      "numericUnit": "milliseconds",
       "displayValue": "4.4 s"
     },
     "screenshot-thumbnails": {
@@ -198,6 +203,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 16,
+      "numericUnit": "milliseconds",
       "displayValue": "20 ms"
     },
     "total-blocking-time": {
@@ -207,6 +213,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 116.79800000000023,
+      "numericUnit": "milliseconds",
       "displayValue": "120 ms"
     },
     "max-potential-fid": {
@@ -216,6 +223,7 @@
       "score": 0.92,
       "scoreDisplayMode": "numeric",
       "numericValue": 122.537,
+      "numericUnit": "milliseconds",
       "displayValue": "120 ms"
     },
     "errors-in-console": {
@@ -224,7 +232,6 @@
       "description": "Errors logged to the console indicate unresolved problems. They can come from network request failures and other browser concerns. [Learn more](https://web.dev/errors-in-console)",
       "score": 0,
       "scoreDisplayMode": "binary",
-      "numericValue": 5,
       "details": {
         "type": "table",
         "headings": [
@@ -275,6 +282,7 @@
       "score": 1,
       "scoreDisplayMode": "binary",
       "numericValue": 570.5630000000001,
+      "numericUnit": "milliseconds",
       "displayValue": "Root document took 570 ms",
       "details": {
         "type": "opportunity",
@@ -290,6 +298,7 @@
       "score": 0.72,
       "scoreDisplayMode": "numeric",
       "numericValue": 4927.278,
+      "numericUnit": "milliseconds",
       "displayValue": "4.9 s"
     },
     "interactive": {
@@ -299,6 +308,7 @@
       "score": 0.78,
       "scoreDisplayMode": "numeric",
       "numericValue": 4927.278,
+      "numericUnit": "milliseconds",
       "displayValue": "4.9 s"
     },
     "user-timings": {
@@ -466,6 +476,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 0,
+      "numericUnit": "milliseconds",
       "displayValue": "",
       "details": {
         "type": "opportunity",
@@ -647,6 +658,7 @@
       "score": 0.96,
       "scoreDisplayMode": "numeric",
       "numericValue": 1548.5690000000002,
+      "numericUnit": "milliseconds",
       "displayValue": "1.5 s",
       "details": {
         "type": "table",
@@ -709,6 +721,7 @@
       "score": 0.92,
       "scoreDisplayMode": "numeric",
       "numericValue": 1150.573,
+      "numericUnit": "milliseconds",
       "displayValue": "1.2 s",
       "details": {
         "type": "table",
@@ -775,6 +788,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 0,
+      "numericUnit": "milliseconds",
       "displayValue": "",
       "details": {
         "type": "opportunity",
@@ -790,6 +804,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 0,
+      "numericUnit": "milliseconds",
       "displayValue": "",
       "warnings": [],
       "details": {
@@ -849,7 +864,6 @@
       "description": "Lists the network requests that were made during page load.",
       "score": null,
       "scoreDisplayMode": "informative",
-      "numericValue": 18,
       "details": {
         "type": "table",
         "headings": [
@@ -1091,6 +1105,7 @@
       "score": null,
       "scoreDisplayMode": "informative",
       "numericValue": 1.7249999999999943,
+      "numericUnit": "milliseconds",
       "displayValue": "0 ms",
       "details": {
         "type": "table",
@@ -1126,6 +1141,7 @@
       "score": null,
       "scoreDisplayMode": "informative",
       "numericValue": 572.829,
+      "numericUnit": "milliseconds",
       "displayValue": "570 ms",
       "details": {
         "type": "table",
@@ -1160,7 +1176,6 @@
       "description": "Lists the toplevel main thread tasks that executed during page load.",
       "score": null,
       "scoreDisplayMode": "informative",
-      "numericValue": 16,
       "details": {
         "type": "table",
         "headings": [
@@ -1252,6 +1267,7 @@
       "score": null,
       "scoreDisplayMode": "informative",
       "numericValue": 4927,
+      "numericUnit": "milliseconds",
       "details": {
         "type": "debugdata",
         "items": [
@@ -2270,6 +2286,7 @@
       "score": 0.58,
       "scoreDisplayMode": "numeric",
       "numericValue": 103455,
+      "numericUnit": "bytes",
       "displayValue": "10 resources found",
       "details": {
         "type": "table",
@@ -2377,6 +2394,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 160738,
+      "numericUnit": "bytes",
       "displayValue": "Total size was 157 KB",
       "details": {
         "type": "table",
@@ -2443,6 +2461,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 0,
+      "numericUnit": "milliseconds",
       "displayValue": "",
       "warnings": [],
       "details": {
@@ -2460,6 +2479,7 @@
       "score": 0.46,
       "scoreDisplayMode": "numeric",
       "numericValue": 1129,
+      "numericUnit": "milliseconds",
       "displayValue": "Potential savings of 1,130 ms",
       "details": {
         "type": "opportunity",
@@ -2517,6 +2537,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 0,
+      "numericUnit": "milliseconds",
       "displayValue": "",
       "details": {
         "type": "opportunity",
@@ -2533,6 +2554,7 @@
       "score": 0.88,
       "scoreDisplayMode": "numeric",
       "numericValue": 150,
+      "numericUnit": "milliseconds",
       "displayValue": "Potential savings of 30 KB",
       "warnings": [],
       "details": {
@@ -2573,6 +2595,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 0,
+      "numericUnit": "milliseconds",
       "displayValue": "",
       "details": {
         "type": "opportunity",
@@ -2589,6 +2612,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 0,
+      "numericUnit": "milliseconds",
       "displayValue": "",
       "details": {
         "type": "opportunity",
@@ -2605,6 +2629,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 0,
+      "numericUnit": "milliseconds",
       "displayValue": "Potential savings of 9 KB",
       "warnings": [],
       "details": {
@@ -2651,6 +2676,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 0,
+      "numericUnit": "milliseconds",
       "displayValue": "",
       "warnings": [],
       "details": {
@@ -2668,6 +2694,7 @@
       "score": 0.75,
       "scoreDisplayMode": "numeric",
       "numericValue": 300,
+      "numericUnit": "milliseconds",
       "displayValue": "Potential savings of 63 KB",
       "details": {
         "type": "opportunity",
@@ -2711,6 +2738,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 0,
+      "numericUnit": "milliseconds",
       "displayValue": "",
       "warnings": [],
       "details": {
@@ -2728,6 +2756,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 0,
+      "numericUnit": "milliseconds",
       "displayValue": "",
       "details": {
         "type": "opportunity",
@@ -2759,6 +2788,7 @@
       "score": 1,
       "scoreDisplayMode": "numeric",
       "numericValue": 31,
+      "numericUnit": "elements",
       "displayValue": "31 elements",
       "details": {
         "type": "table",
