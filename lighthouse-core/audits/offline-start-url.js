@@ -56,6 +56,20 @@ class OfflineStartUrl extends Audit {
 
     const hasOfflineStartUrl = artifacts.StartUrl.statusCode === 200;
 
+    // The StartUrl artifact provides no explanation if a response was received from a service
+    // worker with a non-200 status code. In that case, this audit provides its own explanation.
+    // In all other cases it defers to the artifact explanation.
+    // let explanation = artifacts.StartUrl.explanation;
+    // if (!explanation && artifacts.StartUrl.statusCode !== -1 && !hasOfflineStartUrl) {
+    //   explanation = `Error loading ${artifacts.StartUrl.url}, got status code ${artifacts.StartUrl.statusCode}`;
+    // }
+    const explanation = artifacts.StartUrl.explanation;
+    if (!explanation && artifacts.StartUrl.statusCode !== -1 && !hasOfflineStartUrl) {
+      // explanation = `Error loading ${artifacts.StartUrl.url}, got status code ${artifacts.StartUrl.statusCode}`;
+      warnings.push(
+        `Error loading ${artifacts.StartUrl.url}, got status code ${artifacts.StartUrl.statusCode}`);
+    }
+
     return {
       score: Number(hasOfflineStartUrl),
       explanation: artifacts.StartUrl.explanation,
