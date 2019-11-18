@@ -91,7 +91,7 @@ declare global {
       /** A numeric value that has a meaning specific to the audit, e.g. the number of nodes in the DOM or the timestamp of a specific load event. More information can be found in the audit details, if present. */
       numericValue: number;
       /** The unit of `numericValue`, used when the consumer wishes to convert numericValue to a display string. */
-      numericUnit: 'bytes'|'milliseconds'|'elements'|'requests'|'tasks';
+      numericUnit: 'bytes'|'milliseconds'|'elements';
     }
 
     /** Type returned by Audit.audit(). Only score is required.  */
