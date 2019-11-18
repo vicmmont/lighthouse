@@ -66,9 +66,11 @@ declare global {
       wastedPercent?: number;
     }
 
+    /** The shared properties of an Audit.Product whether it has a numericValue or not. We want to enforce `numericUnit` accompanying `numericValue` whenever it is set, so the final Audit.Product type is a */
     interface ProductBase {
       /** The scored value of the audit, provided in the range `0-1`, or null if `scoreDisplayMode` indicates not scored. */
       score: number | null;
+      /** The i18n'd string value that the audit wishes to display for its results. This value is not necessarily the string version of the `numericValue`. */
       displayValue?: string;
       /** An explanation of why the audit failed on the test page. */
       explanation?: string;
@@ -83,10 +85,12 @@ declare global {
       details?: Audit.Details;
     }
 
+    /** The Audit.Product type for audits that do not return a `numericValue`. */
     interface NonNumericProduct extends ProductBase {
       numericValue?: never;
     }
 
+    /** The Audit.Product type for audits that do return a `numericValue`. */
     interface NumericProduct extends ProductBase {
       /** A numeric value that has a meaning specific to the audit, e.g. the number of nodes in the DOM or the timestamp of a specific load event. More information can be found in the audit details, if present. */
       numericValue: number;

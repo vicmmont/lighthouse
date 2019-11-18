@@ -263,6 +263,10 @@ class Audit {
       }
     }
 
+    // The Audit.Product type is bifurcated to enforce numericUnit accompanying numericValue;
+    // the existence of `numericUnit` is our discriminant.
+    // Make ts happy and enforce this contract programmatically by only pulling numericValue off of
+    // a `NumericProduct` type.
     const numericProduct = 'numericUnit' in product ? product : undefined;
 
     return {
