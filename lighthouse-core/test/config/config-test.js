@@ -513,7 +513,7 @@ describe('Config', () => {
       },
       passes: [
         {passName: 'defaultPass', loadFailureMode: 'warn'},
-      ]
+      ],
     });
 
     log.events.removeListener('warning', saveWarning);
