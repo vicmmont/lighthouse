@@ -81,10 +81,16 @@ class StartUrl extends Gatherer {
     // Wait up to 3s to get a matched network request from the fetch() to work
     const timeoutPromise = new Promise(resolve =>
       setTimeout(
-        () => resolve({statusCode: -1, explanation: 'Timed out waiting for start_url to respond.'}),
+        () => resolve({
+          statusCode: -1,
+          explanation: `Timed out waiting for start_url (${startUrl}) to respond.`,
+        }),
         3000
       )
     );
+
+    const startUrlObject = new URL(startUrl);
+    const startUrlNoHash = startUrlObject.origin + startUrlObject.pathname;
 
     const fetchPromise = new Promise(resolve => {
       driver.on('Network.responseReceived', onResponseReceived);
@@ -93,7 +99,7 @@ class StartUrl extends Gatherer {
       function onResponseReceived(responseEvent) {
         const {response} = responseEvent;
         // ignore mismatched URLs
-        if (response.url !== startUrl) return;
+        if (response.url !== startUrlNoHash) return;
         driver.off('Network.responseReceived', onResponseReceived);
 
         if (!response.fromServiceWorker) {
