@@ -90,7 +90,7 @@ class StartUrl extends Gatherer {
     );
 
     const startUrlObject = new URL(startUrl);
-    const startUrlNoHash = startUrlObject.origin + startUrlObject.pathname;
+    const startUrlNoHash = startUrlObject.origin + startUrlObject.pathname + startUrlObject.search;
 
     const fetchPromise = new Promise(resolve => {
       driver.on('Network.responseReceived', onResponseReceived);
