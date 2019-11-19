@@ -6,6 +6,7 @@
 'use strict';
 
 const Gatherer = require('./gatherer.js');
+const URL = require('../../lib/url-shim.js');
 
 /** @typedef {import('../driver.js')} Driver */
 
@@ -89,10 +90,6 @@ class StartUrl extends Gatherer {
       )
     );
 
-    const startUrlObject = new URL(startUrl);
-    startUrlObject.hash = '';
-    const startUrlNoHash = startUrlObject.toString();
-
     const fetchPromise = new Promise(resolve => {
       driver.on('Network.responseReceived', onResponseReceived);
 
@@ -100,7 +97,8 @@ class StartUrl extends Gatherer {
       function onResponseReceived(responseEvent) {
         const {response} = responseEvent;
         // ignore mismatched URLs
-        if (response.url !== startUrlNoHash) return;
+        if (!URL.equalWithExcludedFragments(response.url, startUrl)) return;
+
         driver.off('Network.responseReceived', onResponseReceived);
 
         if (!response.fromServiceWorker) {
