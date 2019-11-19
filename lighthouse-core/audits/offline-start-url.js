@@ -19,9 +19,15 @@ const UIStrings = {
   /**
    * @description Warning that the audit couldn't find the start_url and used the page's URL instead.
    * @example {No Manifest Fetched.} manifestWarning
-   * */
+   */
   warningCantStart: 'Lighthouse couldn\'t read the `start_url` from the manifest. As a result, ' +
   'the `start_url` was assumed to be the document\'s URL. Error message: \'{manifestWarning}\'.',
+  /**
+   * @description Warning that the audit couldn't find the start_url and used the page's URL instead.
+   * @example {https://www.example.com} url
+   * @example {404} statusCode
+   */
+  errorLoading: 'Error loading {url} in Service Worker, got status code {statusCode}',
 };
 
 const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
@@ -61,13 +67,15 @@ class OfflineStartUrl extends Audit {
     // In all other cases it defers to the artifact explanation.
     let explanation = artifacts.StartUrl.explanation;
     if (!explanation && artifacts.StartUrl.statusCode !== -1 && !hasOfflineStartUrl) {
-      // eslint-disable-next-line max-len
-      explanation = `Error loading ${artifacts.StartUrl.url} in Service Worker, got status code ${artifacts.StartUrl.statusCode}`;
+      explanation = str_(UIStrings.errorLoading, {
+        url: artifacts.StartUrl.url || '',
+        statusCode: artifacts.StartUrl.statusCode,
+      });
     }
 
     return {
       score: Number(hasOfflineStartUrl),
-      explanation: artifacts.StartUrl.explanation,
+      explanation,
       warnings,
     };
   }
