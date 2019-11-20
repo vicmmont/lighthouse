@@ -17,6 +17,8 @@ http://www.webpagetest.org/getkey.php -> "Login with Google" -> fill form. Key w
 
 But you'll really need a privileged key to run the collection in a reasonable amount of time.
 
+Note: to actually run this, you want a better key than the default. Ask @connorjclark for it.
+
 ## Lighthouse Version
 
 Check what version of Lighthouse WPT is using. You should use the same version of lighthouse for the desktop collection.
@@ -46,3 +48,10 @@ node golden.js
 Output will be in `dist/golden-lantern-traces`, and zipped at `dist/golden-lantern-traces.zip`.
 
 Update the zips on Google Drive and `download-traces.sh`.
+
+
+## Run in GCP
+
+```sh
+WPT_KEY=... /usr/local/google/home/cjamcl/code/lighthouse/lighthouse-core/scripts/lantern/collect/gcp-create-and-run.sh
+```
