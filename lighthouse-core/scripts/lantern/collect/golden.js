@@ -72,12 +72,12 @@ let log;
 async function main() {
   log = new common.ProgressLogger();
 
-  /** @type {Summary[]} */
+  /** @type {Summary} */
   const summary = common.loadSummary();
 
   const goldenSites = [];
-  for (const [index, {url, wpt, unthrottled}] of Object.entries(summary)) {
-    log.progress(`finding median ${Number(index) + 1} / ${summary.length}`);
+  for (const [index, {url, wpt, unthrottled}] of Object.entries(summary.results)) {
+    log.progress(`finding median ${Number(index) + 1} / ${summary.results.length}`);
     // Use the nearly-best-case run from WPT, to match the optimistic viewpoint of lantern, and
     // avoid variability that is not addressable by Lighthouse. Don't use the best case because
     // that increases liklihood of using a run that failed to load an important subresource.
@@ -88,6 +88,9 @@ async function main() {
     if (!medianUnthrottled.devtoolsLog) throw new Error(`missing devtoolsLog for ${url}`);
 
     const wptMetrics = common.getMetrics(loadLhr(medianWpt.lhr));
+    if (!wptMetrics) {
+      throw new Error('expected wptMetrics');
+    }
     goldenSites.push({
       url,
       wpt3g: {

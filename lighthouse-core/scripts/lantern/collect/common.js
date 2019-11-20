@@ -6,8 +6,9 @@
 'use strict';
 
 /** @typedef {{devtoolsLog?: string, lhr: string, trace: string}} Result */
+/** @typedef {{url: string, wpt: Result[], unthrottled: Result[]}} ResultsForUrl */
 /** @typedef {Result & {metrics: LH.Artifacts.TimingSummary}} ResultWithMetrics */
-/** @typedef {{url: string, wpt: Result[], unthrottled: Result[]}} Summary */
+/** @typedef {{results: ResultsForUrl[], warnings: string[]}} Summary */
 
 const fs = require('fs');
 const readline = require('readline');
@@ -84,18 +85,18 @@ function archive(archiveDir) {
 }
 
 /**
- * @return {Summary[]}
+ * @return {Summary}
  */
 function loadSummary() {
   if (fs.existsSync(summaryPath)) {
     return JSON.parse(fs.readFileSync(summaryPath, 'utf-8'));
   } else {
-    return [];
+    return {results: [], warnings: []};
   }
 }
 
 /**
- * @param {Summary[]} summary
+ * @param {Summary} summary
  */
 function saveSummary(summary) {
   fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2));

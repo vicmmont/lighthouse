@@ -23,6 +23,20 @@ if (!process.env.WPT_KEY) throw new Error('missing WPT_KEY');
 const WPT_KEY = process.env.WPT_KEY;
 const DEBUG = process.env.DEBUG;
 
+/** @type {typeof common.ProgressLogger['prototype']} */
+let log;
+
+/** @type {Summary} */
+let summary;
+
+/**
+ * @param {string} message
+ */
+function warn(message) {
+  summary.warnings.push(message);
+  log.log(message);
+}
+
 /**
  * @param {string} filename
  * @param {string} data
@@ -163,7 +177,7 @@ async function repeatUntilPassOrNull(asyncFn, maxAttempts = 3) {
     try {
       return await asyncFn();
     } catch (err) {
-      log.log(err, 'error....');
+      warn('Error: ' + err.toString());
     }
   }
 
@@ -191,15 +205,14 @@ function assertLhr(lhr) {
   throw new Error('run failed to get metrics');
 }
 
-/** @type {typeof common.ProgressLogger['prototype']} */
-let log;
-
 async function main() {
   log = new common.ProgressLogger();
 
   // Resume state from previous invocation of script.
-  const summary = common.loadSummary()
-    // Remove data if no longer in URLS.
+  summary = common.loadSummary();
+
+  // Remove data if no longer in TEST_URLS.
+  summary.results = summary.results
     .filter(urlSet => TEST_URLS.includes(urlSet.url));
 
   fs.mkdirSync(common.collectFolder, {recursive: true});
@@ -208,7 +221,7 @@ async function main() {
   // frame, reducing the chance of a site change affecting results.
   for (const url of TEST_URLS) {
     // This URL has been done on a previous script invocation. Skip it.
-    if (summary.find((urlResultSet) => urlResultSet.url === url)) {
+    if (summary.results.find((urlResultSet) => urlResultSet.url === url)) {
       log.log(`already collected traces for ${url}`);
       continue;
     }
@@ -296,13 +309,13 @@ async function main() {
 
     // Too many attempts (with 3 retries) failed, so don't both saving results for this URL.
     if (urlResultSet.wpt.length < SAMPLES / 2 || urlResultSet.unthrottled.length < SAMPLES / 2) {
-      log.log(`too many results for ${url} failed, skipping.`);
+      warn(`too many results for ${url} failed, skipping.`);
       continue;
     }
 
     // We just collected NUM_SAMPLES * 2 traces, so let's save our progress.
     log.log(`collected results for ${url}, saving progress.`);
-    summary.push(urlResultSet);
+    summary.results.push(urlResultSet);
     common.saveSummary(summary);
   }
 
