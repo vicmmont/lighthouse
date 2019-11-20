@@ -5,8 +5,8 @@
  */
 'use strict';
 
-/** @typedef {{devtoolsLog?: string, lhr?: string, trace?: string}} Result */
-/** @typedef {Result & {metrics: import('../../../audits/metrics.js').UberMetricsItem}} ResultWithMetrics */
+/** @typedef {{devtoolsLog?: string, lhr: string, trace: string}} Result */
+/** @typedef {Result & {metrics: LH.Artifacts.TimingSummary}} ResultWithMetrics */
 /** @typedef {{url: string, wpt: Result[], unthrottled: Result[]}} Summary */
 
 const fs = require('fs');
@@ -103,11 +103,21 @@ function saveSummary(summary) {
 
 /**
  * @param {LH.Result} lhr
- * @return {LH.Artifacts.TimingSummary}
+ * @return {LH.Artifacts.TimingSummary|undefined}
  */
 function getMetrics(lhr) {
   const metricsDetails = /** @type {LH.Audit.Details.DebugData=} */ (lhr.audits['metrics'].details);
-  return metricsDetails && metricsDetails.items && metricsDetails.items[0];
+  if (!metricsDetails || !metricsDetails.items || !metricsDetails.items[0]) return;
+  /** @type {LH.Artifacts.TimingSummary} */
+  const metrics = JSON.parse(JSON.stringify(metricsDetails.items[0]));
+
+  // Older versions of Lighthouse don't have max FID on the `metrics` audit, so get
+  // it from somewhere else.
+  if (!metrics.maxPotentialFID) {
+    metrics.maxPotentialFID = lhr.audits['max-potential-fid'].numericValue;
+  }
+
+  return metrics;
 }
 
 module.exports = {

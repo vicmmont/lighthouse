@@ -156,8 +156,9 @@ async function runForWpt(url) {
  * The empty object ({}) is returned when maxAttempts is reached.
  * @param {() => Promise<Result>} asyncFn
  * @param {number} [maxAttempts]
+ * @return {Promise<Result|null>}
  */
-async function repeatUntilPassOrEmpty(asyncFn, maxAttempts = 3) {
+async function repeatUntilPassOrNull(asyncFn, maxAttempts = 3) {
   for (let i = 0; i < maxAttempts; i++) {
     try {
       return await asyncFn();
@@ -166,7 +167,7 @@ async function repeatUntilPassOrEmpty(asyncFn, maxAttempts = 3) {
     }
   }
 
-  return {};
+  return null;
 }
 
 /**
@@ -182,10 +183,10 @@ function assertLhr(lhr) {
       metrics.firstCPUIdle &&
       metrics.firstMeaningfulPaint &&
       metrics.interactive &&
-      metrics.largestContentfulPaint &&
+      // WPT won't have this, we'll just get from the trace.
+      // metrics.largestContentfulPaint &&
       metrics.maxPotentialFID &&
-      metrics.speedIndex &&
-      metrics.totalBlockingTime
+      metrics.speedIndex
   ) return;
   throw new Error('run failed to get metrics');
 }
@@ -219,18 +220,21 @@ async function main() {
     /** @type {Result[]} */
     const unthrottledResults = [];
 
+    let wptResultsDone = 0;
+    let unthrottledResultsDone = 0;
+
     // The closure this makes is too convenient to decompose.
     // eslint-disable-next-line no-inner-declarations
     function updateProgress() {
       const index = TEST_URLS.indexOf(url);
-      const wptDone = wptResults.length === SAMPLES;
-      const unthrottledDone = unthrottledResults.length === SAMPLES;
+      const wptDone = wptResultsDone === SAMPLES;
+      const unthrottledDone = unthrottledResultsDone === SAMPLES;
       log.progress([
         `${url} (${index + 1} / ${TEST_URLS.length})`,
         'wpt',
-        '(' + (wptDone ? 'DONE' : `${wptResults.length + 1} / ${SAMPLES}`) + ')',
+        '(' + (wptDone ? 'DONE' : `${wptResultsDone + 1} / ${SAMPLES}`) + ')',
         'unthrottledResults',
-        '(' + (unthrottledDone ? 'DONE' : `${unthrottledResults.length + 1} / ${SAMPLES}`) + ')',
+        '(' + (unthrottledDone ? 'DONE' : `${unthrottledResultsDone + 1} / ${SAMPLES}`) + ')',
       ].join(' '));
     }
 
@@ -239,9 +243,12 @@ async function main() {
     // Can run in parallel.
     const wptResultsPromises = [];
     for (let i = 0; i < SAMPLES; i++) {
-      const resultPromise = repeatUntilPassOrEmpty(() => runForWpt(url));
+      const resultPromise = repeatUntilPassOrNull(() => runForWpt(url));
       // Push to results array as they finish, so the progress indicator can track progress.
-      resultPromise.then((result) => wptResults.push(result)).finally(updateProgress);
+      resultPromise.then((result) => result && wptResults.push(result)).finally(() => {
+        wptResultsDone += 1;
+        updateProgress();
+      });
       wptResultsPromises.push(resultPromise);
     }
 
@@ -251,8 +258,11 @@ async function main() {
 
     // Must run in series.
     for (let i = 0; i < SAMPLES; i++) {
-      const resultPromise = repeatUntilPassOrEmpty(() => runUnthrottledLocally(url));
-      unthrottledResults.push(await resultPromise);
+      const result = await repeatUntilPassOrNull(() => runUnthrottledLocally(url));
+      if (result) {
+        unthrottledResults.push(result);
+      }
+      unthrottledResultsDone += 1;
       updateProgress();
     }
 
@@ -262,11 +272,7 @@ async function main() {
     const urlResultSet = {
       url,
       wpt: wptResults
-        .filter(result => result.lhr && result.trace)
         .map((result, i) => {
-          // Not possible with filter but ts doesn't know that :)
-          if (!result.lhr || !result.trace) throw new Error('Expected lhr and trace');
-
           const prefix = `${sanitizedUrl}-mobile-wpt-${i + 1}`;
           return {
             lhr: saveData(`${prefix}-lhr.json`, result.lhr),
@@ -276,8 +282,7 @@ async function main() {
       unthrottled: unthrottledResults
         .filter(result => result.lhr && result.trace && result.devtoolsLog)
         .map((result, i) => {
-          // Not possible with filter but ts doesn't know that :)
-          if (!result.lhr || !result.trace) throw new Error('Expected lhr and trace');
+          // Unthrottled runs will have devtools logs, so this should never happen.
           if (!result.devtoolsLog) throw new Error('expected devtools log');
 
           const prefix = `${sanitizedUrl}-mobile-unthrottled-${i + 1}`;

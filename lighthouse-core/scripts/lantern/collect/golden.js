@@ -36,6 +36,7 @@ function getPercentileBy(percentile, values, mapper) {
 function getPercentileResult(percentile, results) {
   const resultsWithMetrics = results.map(result => {
     const metrics = common.getMetrics(loadLhr(result.lhr));
+    if (!metrics) throw new Error('could not find metrics'); // This shouldn't happen.
     return {result, metrics};
   });
   return getPercentileBy(
