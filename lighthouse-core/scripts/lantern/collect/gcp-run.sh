@@ -16,7 +16,8 @@ fi
 cd ./lighthouse
 
 git fetch origin
-git checkout -f origin/master
+git checkout -f origin/lantern-collect
+# git checkout -f origin/master
 yarn install
 
 # Setup xvfb for lighthouse
