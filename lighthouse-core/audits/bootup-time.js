@@ -94,11 +94,10 @@ class BootupTime extends Audit {
     const jsURL = task.attributableURLs.find(url => jsURLs.has(url));
     const fallbackURL = task.attributableURLs[0];
     let attributableURL = jsURL || fallbackURL;
-    // If we can't find what URL was responsible for this execution, just attribute it to the root page.
-    if (!attributableURL || attributableURL === 'about:blank') attributableURL = 'Other';
-    if (attributableURL === 'Other' && task.selfTime > 3) debugger
-    if (attributableURL === 'Other' && BROWSER_TASK_NAMES_SET.has(task.event.name)) {
-      attributableURL = 'Chrome';
+    // If we can't find what URL was responsible for this execution, attribute it to the root page
+    // or Chrome depending on the type of work.
+    if (!attributableURL || attributableURL === 'about:blank') {
+      attributableURL = BROWSER_TASK_NAMES_SET.has(task.event.name) ? 'Chrome' : 'Other';
     }
     return attributableURL;
   }

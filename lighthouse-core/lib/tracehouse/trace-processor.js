@@ -597,7 +597,7 @@ class TraceProcessor {
     };
 
     const frames = keyEvents
-      .filter(evt => evt.name === "FrameCommittedInBrowser")
+      .filter(evt => evt.name === 'FrameCommittedInBrowser')
       .map(evt => evt.args.data)
       .filter(/** @return {data is {frame: string, url: string}} */ data => {
         return Boolean(data && data.frame && data.url);

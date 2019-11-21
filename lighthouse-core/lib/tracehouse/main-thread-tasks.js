@@ -480,7 +480,7 @@ class MainThreadTasks {
         taskURLs = priorTaskData.lastTaskURLs;
         break;
       case 'XHRReadyStateChange':
-      case 'XHRLoad':
+      case 'XHRLoad': {
         // Inherit from task that issued the XHR
         const xhrUrl = argsData.url;
         const readyState = argsData.readyState;
@@ -489,6 +489,7 @@ class MainThreadTasks {
         if (!xhrRequesterTaskNode) break;
         taskURLs = xhrRequesterTaskNode.attributableURLs;
         break;
+      }
       default:
         taskURLs = [];
         break;

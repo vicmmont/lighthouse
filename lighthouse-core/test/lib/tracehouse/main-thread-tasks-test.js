@@ -205,8 +205,8 @@ describe('Main Thread Tasks', () => {
       args: {data: {
         url: s,
         readyState,
-        stackTrace: stackTrace && stackTrace.map(url => ({url}))
-      }}
+        stackTrace: stackTrace && stackTrace.map(url => ({url})),
+      }},
     });
 
     /*
