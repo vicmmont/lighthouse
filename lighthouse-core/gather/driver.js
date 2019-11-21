@@ -113,8 +113,9 @@ class Driver {
       // Not mandatory but not used much
       'blink.console',
 
-      // Most the events we need come in on these two
+      // Most the events we need come in on these three
       'devtools.timeline',
+      'devtools.timeline.async',
       'disabled-by-default-devtools.timeline',
 
       // Up to 450 (https://goo.gl/rBfhn4) JPGs added to the trace
@@ -124,8 +125,8 @@ class Driver {
       'disabled-by-default-devtools.timeline.stack',
 
       // CPU sampling profiler data only enabled for debugging purposes
-      // 'disabled-by-default-v8.cpu_profiler',
-      // 'disabled-by-default-v8.cpu_profiler.hires',
+      'disabled-by-default-v8.cpu_profiler',
+      'disabled-by-default-v8.cpu_profiler.hires',
     ];
   }
 

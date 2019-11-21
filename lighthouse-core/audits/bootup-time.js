@@ -34,6 +34,14 @@ const UIStrings = {
 
 const str_ = i18n.createMessageInstanceIdFn(__filename, UIStrings);
 
+// These trace events, when not triggered by a script inside a particular task, are just general Chrome overhead.
+const BROWSER_TASK_NAMES_SET = new Set([
+  'CpuProfiler::StartProfiling',
+  'V8.GCCompactor',
+  'MajorGC',
+  'MinorGC',
+]);
+
 class BootupTime extends Audit {
   /**
    * @return {LH.Audit.Meta}
@@ -88,6 +96,10 @@ class BootupTime extends Audit {
     let attributableURL = jsURL || fallbackURL;
     // If we can't find what URL was responsible for this execution, just attribute it to the root page.
     if (!attributableURL || attributableURL === 'about:blank') attributableURL = 'Other';
+    if (attributableURL === 'Other' && task.selfTime > 3) debugger
+    if (attributableURL === 'Other' && BROWSER_TASK_NAMES_SET.has(task.event.name)) {
+      attributableURL = 'Chrome';
+    }
     return attributableURL;
   }
 
